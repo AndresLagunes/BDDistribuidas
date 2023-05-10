@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Ganancias</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Ganancias</h1>
+  {% if mensaje != '' %}
+  <p>{{ mensaje }}</p>
+  {% endif %}
+  <a href="/" class="boton">Inicio</a>
+  
+  <h2>Contrato</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th name="folio">Folio</th>
+        <th name="rfc">RFC</th>
+        <th name="fecha_inicio">Fecha Inicio</th>
+        <th name="fecha_vencimiento">Fecha Vencimiento</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contrato in contratos %}
+      <tr>
+        {% for i in contrato %}
+        <td>{{ i }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h2>Inversiones</h2>
+  <table id="miTabla">
+    <thead>
+      <tr>
+        <th name="folio_Inversion">Folio I</th>
+        <th name="folio_contrato">Folio C</th>
+        <th name="clave_tasa">Clave T</th>
+        <th name="tipo_inversion">Tipo I</th>
+        <th name="monto_invertido">Monto I</th>
+        <th name="monto_ganado">Monto G</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inversion in inversiones %}
+        <tr>
+            {% for i in inversion %}
+            <td>{{ i }}</td>
+            {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+</body>
+</html>

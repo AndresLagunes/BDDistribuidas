@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Ganancias</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Ganancias</h1>
+  {% if mensaje != '' %}
+  <p>{{ mensaje }}</p>
+  {% endif %}
+  <a href="/" class="boton">Inicio</a>
+
+  <h2>Cliente</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th name="rfc">RFC</th>
+        <th name="nombre">Nombre</th>
+        <th name="apellido_paterno">Apellido Paterno</th>
+        <th name="apellido_materno">Apellido Materno</th>
+        <th name="direccion">Dirección</th>
+        <th name="telefono">Teléfono</th>
+        <th name="email">Email</th>
+        <th name="sucursal">Sucursal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cliente in clientes %}
+      <tr>
+        {% for i in cliente %}
+          <td>{{ i }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <h2>Contratos</h2>
+  <table id="mi_Tabla">
+    <thead>
+      <tr>
+        <th name="folio">Folio</th>
+        <th name="rfc">RFC</th>
+        <th name="fecha_inicio">Fecha Inicio</th>
+        <th name="fecha_vencimiento">Fecha Vencimiento</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ganancia in ganancias %}
+      <tr>
+        {% for i in ganancia %}
+        <td>{{ i }}</td>
+        {% endfor %}
+        <td>
+          <form action="/inversionesClientes" name="misInversionesClientes" method="post">
+            <input type="submit" name="inversionesClientes" value="Inversiones">
+          </form>  
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <script src="{{ url_for('static', filename='inversionesClientes.js') }}"></script>
+</body>
+</html>
