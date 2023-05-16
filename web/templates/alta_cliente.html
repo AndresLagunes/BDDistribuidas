@@ -2,56 +2,48 @@
 <html>
 
 <head>
-  <title>Inversiones el TEC</title>
+  <title>Clientes</title>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
 <body>
-  <h1>Alta de Cliente</h1>
+  <h1>Clientes</h1>
   <!-- <form action="/clientes" method="post">
     <input type="submit" name="clientes" value="Buscar">
     <input type="text" name="campo_rfc" placeholder="RFC">
   </form> -->
-  <form action="/clientes" id="" method="post" class="header">
+  <form action="/clientes" id="miFormulario" method="post" class="header">
     <a href="/" class="boton">Inicio</a>
-    <input type="submit" name="clientes" value="Clientes" class="boton_inicio">
+    <input type="submit" name="clientes" value="Buscar">
+    
+
+  </form>
+
+  <form action="/crear_cliente" id="formularioCrear" method="post" class="header">
+    <input type="text" name="rfc">
+    <input type="text" name="nombre">
+    <input type="text" name="apellido_paterno">
+    <input type="text" name="apellido_materno">
+    <input type="text" name="direccion">
+    <input type="text" name="telefono">
+    <input type="text" name="email">
 
 
   </form>
-<!-- 
-  {% if mensaje != '' %}
-  <p>{{ mensaje }}</p>
-  {% endif %}
-  <table id="miTabla">
-    <thead>
-      <tr>
-        <th name="rfc">RFC</th>
-        <th name="nombre">Nombre</th>
-        <th name="apellido_paterno">Apellido Paterno</th>
-        <th name="apellido_materno">Apellido Materno</th>
-        <th name="direccion">Dirección</th>
-        <th name="telefono">Teléfono</th>
-        <th name="email">Email</th>
-        <th name="sucursal">Sucursal</th>
-        <th name="ganancias">Ganancias</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for cliente in clientes %}
-      <tr>
-        {% for i in cliente %}
-          <td>{{ i }}</td>
-        {% endfor %}
-        <td>
-          <form action="/ganancias" name="misGanancias" method="post" class="form_ganancias">
-            <input type="submit" name="ganancias" value="Ganancias">
-          </form>  
-        </td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table> -->
+
+
+  
+  <!-- <th name="rfc">RFC</th>
+  <th name="nombre">Nombre</th>
+  <th name="apellido_paterno">Apellido Paterno</th>
+  <th name="apellido_materno">Apellido Materno</th>
+  <th name="direccion">Dirección</th>
+  <th name="telefono">Teléfono</th>
+  <th name="email">Email</th>
+  <th name="sucursal">Sucursal</th>
+  <th name="ganancias">Ganancias</th> -->
+
   <script src="{{ url_for('static', filename='filtros.js') }}"></script>
   <script src="{{ url_for('static', filename='ganancias.js') }}"></script>
 
