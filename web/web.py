@@ -239,4 +239,4 @@ def inversionesClientes():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.29.102.117', port=5000)
+    app.run(debug=True, host='172.29.197.96', port=5000)
