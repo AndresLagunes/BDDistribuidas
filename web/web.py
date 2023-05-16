@@ -60,6 +60,7 @@ def conectar_nodo(esquema, comando):
                 if not conexion.conectar():
                     return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_C)
     try:
+        print(esquema)
         conexion.cursor.execute(comando)
         resultado = conexion.cursor.fetchall()
         conexion.desconectar()
@@ -72,11 +73,11 @@ def conectar_nodo(esquema, comando):
 USER = 'master'
 PASSWORD = 'master'
 
-NODO_A = '172.30.194.81'
-NODO_B = '172.30.38.254'
-NODO_C = '172.30.102.117'
+NODO_A = '172.29.102.117'
+NODO_B = '172.29.197.96'
+NODO_C = '172.29.38.254'
 
-PUERTO_A = 3307
+PUERTO_A = 3306
 PUERTO_B = 3306
 PUERTO_C = 3306
 
@@ -93,6 +94,16 @@ conexion = object
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/altas', methods=['GET', 'POST'])
+def altas():
+    return render_template('altas.html')
+
+@app.route('/alta_cliente', methods=['GET', 'POST'])
+def alta_cliente():
+    return render_template('alta_cliente.html')
+
 
 
 @app.route('/clientes', methods=['GET', 'POST'])
@@ -228,4 +239,4 @@ def inversionesClientes():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.30.102.117', port=5000)
+    app.run(debug=True, host='172.29.102.117', port=5000)
