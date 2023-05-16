@@ -72,11 +72,11 @@ def conectar_nodo(esquema, comando):
 USER = 'master'
 PASSWORD = 'master'
 
-NODO_A = '172.30.194.81'
-NODO_B = '172.30.38.254'
-NODO_C = '172.30.102.117'
+NODO_A = '172.29.102.117'
+NODO_B = '172.29.197.96'
+NODO_C = '172.29.38.254'
 
-PUERTO_A = 3307
+PUERTO_A = 3306
 PUERTO_B = 3306
 PUERTO_C = 3306
 
@@ -228,4 +228,4 @@ def inversionesClientes():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.30.102.117', port=5000)
+    app.run(debug=True, host='172.29.197.96', port=5000)
