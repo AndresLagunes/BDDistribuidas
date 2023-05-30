@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Contratos</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Modificación de Contrato</h1>
+  <form action="/modificaciones" id="miFormulario" method="post" class="header">
+    <a href="/" class="boton">Inicio</a>
+    <input type="submit" name="contratos" value="Modificaciones">
+  </form>
+
+  <form action="/actualizar_inversion" id="formularioCrear" method="post" class="">
+    <label for="id">Número de Inversión:</label><br>
+    <input type="text" name="id" value="{{inversion['id']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="folio_inversion">Folio de Inversion:</label><br>
+    <input type="text" name="folio_inversion" value="{{inversion['folio_inversion']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="folio_contrato">Folio de Contrato:</label><br>
+    <input type="text" name="folio_contrato" value="{{inversion['folio_contrato']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="tipo_inversion">Tipo de Inversion:</label><br>
+    <input type="text" name="tipo_inversion" value="{{inversion['tipo_inversion']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="monto_invertido">Monto Invertido:</label><br>
+    <input type="text" name="monto_invertido" value="{{inversion['monto_invertido']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="monto_ganado">Monto Ganado:</label><br>
+    <input type="text" name="monto_ganado" value="{{inversion['monto_ganado']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="clave_tasa">Tipo de Tasa:</label><br>
+    <select id="clave_tasa" name="clave_tasa">
+        {% for tasa in tasas %}
+            {% if tasa[0] == inversion['clave_tasa'] %}
+                <option value="{{ tasa[0] }}" selected>{{ tasa[0] }} - {{ tasa[1] }}%</option>
+            {% else %}
+                <option value="{{ tasa[0] }}">{{ tasa[0] }} - {{ tasa[1] }}%</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <br><br>
+    
+  
+    <input type="submit" name="guardar" value="Guardar">
+
+  </form>
+
+
+
+  <script src="{{ url_for('static', filename='modificar_inversiones.js') }}"></script>
+
+</body>
+</html>

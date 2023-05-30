@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Clientes</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Eliminar Contrato</h1>
+  <!-- <form action="/clientes" method="post">
+    <input type="submit" name="clientes" value="Buscar">
+    <input type="text" name="campo_rfc" placeholder="RFC">
+  </form> -->
+  <form action="/baja_contratos" id="miFormulario" method="post" class="header">
+    <a href="/" class="boton">Inicio</a>
+    <input type="submit" name="clientes" value="Buscar">
+    
+
+  </form>
+
+  {% if mensaje != '' %}
+  <p>{{ mensaje }}</p>
+  {% endif %}
+  <table id="miTabla">
+    <thead>
+      <tr>
+        <th name="id">Número de Contrato</th>
+        <th name="sucursal">Sucursal</th>
+        <th name="rfc_cliente">RFC</th>
+        <th name="fecha_inicio">Fecha Inicio</th>
+        <th name="fecha_vencimiento">Fecha Vencimiento</th>
+        <th name="folio_contrato">Folio Contrato</th>
+        <th name="ganancias">Modificar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contrato in contratos %}
+      <tr id="{{ contrato[0] }}">
+        {% for i in contrato %}
+          <td value="{{i}}">{{ i }}</td>
+        {% endfor %}
+        <td>
+          <form action="/eliminar_contrato" method="post" class="form_ganancias">
+            <input type="hidden" name="id" value="{{ contrato[0] }}">
+            <input type="hidden" name="sucursal" value="{{ contrato[1] }}">
+            <input type="hidden" name="rfc_cliente" value="{{ contrato[2] }}">
+            <input type="hidden" name="fecha_inicio" value="{{ contrato[3] }}">
+            <input type="hidden" name="fecha_vencimiento" value="{{ contrato[4] }}">
+            <input type="hidden" name="folio_contrato" value="{{ contrato[5] }}">
+            <input type="submit" name="ganancias" value="Eliminar" onclick="confirmarEliminacion(event);">
+          </form>  
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <script src="{{ url_for('static', filename='filtros.js') }}"></script>
+  <script src="{{ url_for('static', filename='baja_contratos.js') }}"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Clientes</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Modificación de Cliente</h1>
+  <form action="/modificaciones" id="miFormulario" method="post" class="header">
+    <a href="/" class="boton">Inicio</a>
+    <input type="submit" name="clientes" value="Modificaciones">
+  </form>
+
+  <form action="/actualizar_cliente" id="formularioCrear" method="post" class="">
+    <label for="rfc">RFC:</label><br>
+    <input type="text" name="rfc" value="{{cliente['rfc']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="nombre">Nombre:</label><br>
+    <input type="text" name="nombre" value="{{cliente['nombre']}}"><br><br>
+    <label for="apellido_paterno">Apellido Paterno:</label><br>
+    <input type="text" name="apellido_paterno" value="{{cliente['apellido_paterno']}}"><br><br>
+    <label for="apellido_materno">Apellido Materno:</label><br>
+    <input type="text" name="apellido_materno" value="{{cliente['apellido_materno']}}"><br><br>
+    <label for="direccion">Dirección:</label><br>
+    <input type="text" name="direccion" value="{{cliente['direccion']}}"><br><br>
+    <label for="telefono">Teléfono:</label><br>
+    <input type="text" name="telefono" value="{{cliente['telefono']}}"><br><br>
+    <label for="email">Email:</label><br>
+    <input type="text" name="email" value="{{cliente['email']}}"><br><br>
+
+    <input type="submit" name="guardar" value="Guardar">
+
+  </form>
+
+
+
+  <!-- <script src="{{ url_for('static', filename='filtros.js') }}"></script> -->
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Inversión</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Alta de Inversion</h1>
+  <form action="/altas" id="miFormulario" method="post" class="header">
+    <a href="/" class="boton">Inicio</a>
+    <input type="submit" name="clientes" value="Altas">
+  </form>
+
+  {% if mensaje != '' %}
+  <p>{{ mensaje }}</p>
+  {% endif %}
+  <form action="/crear_inversion" id="formularioCrearInversion" method="post" class="">
+
+    <label for="contrato">Contrato al que pertenece:</label><br>
+
+    <select id="contrato" name="contrato">
+        <option value=""> --- </option>
+        {% for contrato in resultadoContrato %}
+          <option value="{{ contrato[5] }}">{{ contrato[5] }}</option>
+        {% endfor %}
+      </select>
+    <br><br>
+
+    <label for="tasa">Tasa:</label><br>
+    <select id="tasa" name="tasa">
+        <option value=""> --- </option>
+        {% for tasa in resultadoTasa %}
+          <option value="{{ tasa[0] }}">{{ tasa[0] }} - {{ tasa[1] }}</option>
+        {% endfor %}
+      </select>
+    <br><br>
+
+    <label for="tipo_de_inversion">Tipo de Inversión:</label><br>
+    <input type="text" name="tipo_de_inversion"><br><br>
+
+    <label for="monto_de_inversion">Monto de Inversión:</label><br>
+    <input type="text" name="monto_de_inversion" id="monto_de_inversion_input" style="text-align: right; padding-left: 20px;"><br><br>
+
+
+
+
+    <input type="submit" name="guardar" value="Guardar">
+
+  </form>
+
+  <style>
+    #monto_de_inversion_input::before {
+        content: "$";
+        position: absolute;
+        margin-left: -15px;
+    }
+  </style>
+
+
+  <script src="{{ url_for('static', filename='alta_inversion.js') }}"></script>
+
+</body>
+</html>

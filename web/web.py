@@ -1,3 +1,9 @@
+# COMENTARIOS
+# En este archivo tenemos las conexiones, consultas, altas, modificaciones y bajas, funciona como
+# nuestro backend y es lo que comunica la apliación con la base de datos.
+# También maneja las conexiones con los nodos
+
+
 from flask import Flask, render_template, request, session, jsonify
 import MySQLdb
 import json
@@ -29,6 +35,7 @@ class Conexion:
 
 
 def conectar_nodo(esquema, comando):
+    print(comando)
     resultado = []
     if esquema == ESQUEMA_A:
         conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
@@ -61,7 +68,9 @@ def conectar_nodo(esquema, comando):
                     return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_C)
     try:
         print(esquema)
+        print(conexion.host)
         conexion.cursor.execute(comando)
+        conexion.conexion.commit()
         resultado = conexion.cursor.fetchall()
         conexion.desconectar()
     except Exception as e:
@@ -99,17 +108,427 @@ def index():
 @app.route('/altas', methods=['GET', 'POST'])
 def altas():
     return render_template('altas.html')
+@app.route('/modificaciones', methods=['GET', 'POST'])
+def modificaciones():
+    return render_template('modificaciones.html')
+@app.route('/bajas', methods=['GET', 'POST'])
+def bajas():
+    return render_template('bajas.html')
+
+
+
+
+# CLIENTES
 
 @app.route('/alta_cliente', methods=['GET', 'POST'])
 def alta_cliente():
     return render_template('alta_cliente.html')
 
 
+@app.route('/crear_cliente', methods=['POST'])
+def crear_cliente():
+    print(request.form)
+    rfc = request.form['rfc']
+    nombre = request.form['nombre']
+    apellido_paterno = request.form['apellido_paterno']
+    apellido_materno = request.form['apellido_materno']
+    direccion = request.form['direccion']
+    telefono = request.form['telefono']
+    email = request.form['email']
+
+    if request.method == 'POST':
+        comando = f"INSERT INTO clientes (rfc, nombre, apellido_paterno, apellido_materno, direccion, telefono, email) VALUES ('{rfc}', '{nombre}', '{apellido_paterno}', '{apellido_materno}', '{direccion}', '{telefono}', '{email}')"
+
+    # Resto del código para procesar los datos recibidos
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('alta_cliente.html', mensaje=error)
+
+    return render_template('alta_cliente.html', mensaje='Cliente registrado con éxito')
+
+@app.route('/modificar_cliente', methods=['GET', 'POST'])
+def modificar_cliente():
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            print(valores)
+
+            comando = "SELECT * FROM clientes "
+            i = 1
+            longitud = len(valores)
+            longitud -= 1 if 'null' in valores else 0
+            for llave, valor in valores.items():
+                if llave != 'null':
+                    if i == 1:
+                        comando += " WHERE "
+                    comando += llave + " = '" + valor+"' "
+                    if i < longitud:
+                        comando += " AND "
+                    i = i + 1
+            print(comando)
+        else:
+            comando = 'SELECT * FROM clientes'
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('modificar_cliente.html', clientes=[], mensaje=error)
+    
+    return render_template('modificar_cliente.html', clientes=resultado, mensaje='')
+
+@app.route('/modificacion_cliente', methods=['GET', 'POST'])
+def modificacion_cliente():
+    if request.method == 'POST':
+        print(request.form.get('rfc'))
+        cliente = request.form.to_dict()
+        print(cliente)
+
+    return render_template('modificacion_cliente.html', cliente = cliente, mensaje = '')
+
+@app.route('/actualizar_cliente', methods=['GET', 'POST'])
+def actualizar_cliente():
+    if request.method == 'POST':
+        print(request.form.get('rfc'))
+        cliente = request.form.to_dict()
+        comando = f"UPDATE clientes SET nombre = '{cliente['nombre']}', apellido_paterno = '{cliente['apellido_paterno']}', " \
+                f"apellido_materno = '{cliente['apellido_materno']}', direccion = '{cliente['direccion']}', " \
+                f"telefono = '{cliente['telefono']}', email = '{cliente['email']}' WHERE rfc = '{cliente['rfc']}'"
+        print(comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    print(resultado)
+    if not error == '':
+        return render_template('modificar_cliente.html', resultado=resultado, mensaje=error)
+
+    return render_template('modificar_cliente.html',resultado = resultado, mensaje = 'Cliente actualizado con éxito')
+
+@app.route('/baja_clientes', methods=['GET', 'POST'])
+def baja_clientes():
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            print(valores)
+
+            comando = "SELECT * FROM clientes "
+            i = 1
+            longitud = len(valores)
+            longitud -= 1 if 'null' in valores else 0
+            for llave, valor in valores.items():
+                if llave != 'null':
+                    if i == 1:
+                        comando += " WHERE "
+                    comando += llave + " = '" + valor+"' "
+                    if i < longitud:
+                        comando += " AND "
+                    i = i + 1
+            print(comando)
+        else:
+            comando = 'SELECT * FROM clientes'
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('baja_clientes.html', clientes=[], mensaje=error)
+    
+    return render_template('baja_clientes.html', clientes=resultado, mensaje='')
+
+@app.route('/eliminar_cliente', methods=['GET', 'POST'])
+def eliminar_cliente():
+    if request.method == 'POST':
+        print(request.form.get('rfc'))
+        cliente = request.form.to_dict()
+        comando = f"DELETE FROM clientes WHERE rfc = '{cliente['rfc']}'"
+
+        print(comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    print(resultado)
+    if not error == '':
+        return render_template('baja_clientes.html', resultado=resultado, mensaje=error)
+
+    return render_template('baja_clientes.html',resultado = resultado, mensaje = 'Cliente eliminado con éxito')
+# FIN CLIENTES
+
+
+# CONTRATOS
+
+@app.route('/alta_contrato', methods=['GET', 'POST'])
+def alta_contrato():
+    if request.method == 'POST':
+        comando = 'SELECT * FROM clientes'
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('alta_contrato.html', clientes=[], mensaje=error)
+    
+    return render_template('alta_contrato.html',clientes=resultado, mensaje='')
+
+@app.route('/crear_contrato', methods=['POST'])
+def crear_contrato():
+    cliente = request.form['cliente']
+    fecha_inicio = request.form['fecha_inicio']
+    fecha_vencimiento = request.form['fecha_vencimiento']
+
+    # Resto del código para procesar los datos recibidos
+    
+    if request.method == 'POST':
+        comando = f"INSERT INTO contrato_inversion (rfc_cliente, fecha_inicio, fecha_vencimiento) VALUES ('{cliente}', '{fecha_inicio}', '{fecha_vencimiento}')"
+        print(comando)
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('alta_contrato.html', mensaje=error)
+
+    return render_template('alta_contrato.html', mensaje='Contrato registrado con éxito')
+
+
+
+@app.route('/modificar_contrato', methods=['GET', 'POST'])
+def modificar_contrato():
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            print(valores)
+
+            comando = "SELECT * FROM contrato_inversion "
+            i = 1
+            longitud = len(valores)
+            longitud -= 1 if 'null' in valores else 0
+            for llave, valor in valores.items():
+                if llave != 'null':
+                    if i == 1:
+                        comando += " WHERE "
+                    comando += llave + " = '" + valor+"' "
+                    if i < longitud:
+                        comando += " AND "
+                    i = i + 1
+            print(comando)
+        else:
+            comando = 'SELECT * FROM contrato_inversion'
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('modificar_contrato.html', contratos=[], mensaje=error)
+    
+    return render_template('modificar_contrato.html', contratos=resultado, mensaje='') 
+
+@app.route('/modificacion_contrato', methods=['GET', 'POST'])
+def modificacion_contrato():
+    if request.method == 'POST':
+        contrato = request.form.to_dict()
+        print(contrato)
+
+    return render_template('modificacion_contrato.html', contrato = contrato, mensaje = '')   
+
+@app.route('/actualizar_contrato', methods=['GET', 'POST'])
+def actualizar_contrato():
+    if request.method == 'POST':
+        print(request.form.get('fecha_vencimiento'))
+        contrato = request.form.to_dict()
+        comando = f"UPDATE contrato_inversion SET fecha_vencimiento = '{contrato['fecha_vencimiento']}' WHERE id = '{contrato['id']}'"
+        print(comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    print(resultado)
+    if not error == '':
+        return render_template('modificar_contrato.html', resultado=resultado, mensaje=error)
+
+    return render_template('modificar_contrato.html',resultado = resultado, mensaje = 'Contrato actualizado con éxito')
+
+
+@app.route('/baja_contratos', methods=['GET', 'POST'])
+def baja_contratos():
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            print(valores)
+
+            comando = "SELECT * FROM contrato_inversion "
+            i = 1
+            longitud = len(valores)
+            longitud -= 1 if 'null' in valores else 0
+            for llave, valor in valores.items():
+                if llave != 'null':
+                    if i == 1:
+                        comando += " WHERE "
+                    comando += llave + " = '" + valor+"' "
+                    if i < longitud:
+                        comando += " AND "
+                    i = i + 1
+            print(comando)
+        else:
+            comando = 'SELECT * FROM contrato_inversion'
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('baja_contratos.html', contratos=[], mensaje=error)
+    
+    return render_template('baja_contratos.html', contratos=resultado, mensaje='')
+
+@app.route('/eliminar_contrato', methods=['GET', 'POST'])
+def eliminar_contrato():
+    if request.method == 'POST':
+        print(request.form.get('id'))
+        contrato = request.form.to_dict()
+        comando = f"DELETE FROM contrato_inversion WHERE id = '{contrato['id']}'"
+
+        print(comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    print(resultado)
+    if not error == '':
+        return render_template('baja_contratos.html', resultado=resultado, mensaje=error)
+
+    return render_template('baja_contratos.html',resultado = resultado, mensaje = 'Contrato eliminado con éxito')
+# FIN CONTRATOS
+
+# INVERSIONES
+
+@app.route('/alta_inversion', methods=['GET', 'POST'])
+def alta_inversion():
+    if request.method == 'POST':
+        comandoContrato = 'SELECT * FROM contrato_inversion'
+        comandoTasa = 'SELECT * FROM tasa'
+
+    resultadoContrato, errorContrato = conectar_nodo(ESQUEMA_A, comandoContrato)
+    resultadoTasa, errorTasa = conectar_nodo(ESQUEMA_A, comandoTasa)
+    if not errorContrato == ''  and not errorTasa == '':
+        return render_template('alta_inversion.html', resultadoContrato=[], resultadoTasa=[], mensajeContrato=errorContrato, mensajeTasa=errorTasa)
+    
+    return render_template('alta_inversion.html',resultadoContrato=resultadoContrato, resultadoTasa=resultadoTasa, mensaje='')
+
+@app.route('/crear_inversion', methods=['POST'])
+def crear_inversion():
+    contrato = request.form['contrato']
+    tasa = request.form['tasa']
+    tipo_de_inversion = request.form['tipo_de_inversion']
+    monto_de_inversion = request.form['monto_de_inversion']
+
+    # Obtén el próximo ID
+    resultado, error = conectar_nodo(ESQUEMA_A, 'SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = "Inversiones_A" AND TABLE_NAME = "inversiones"')
+    print(resultado[0][0])
+    if not error == '':
+        return render_template('alta_inversion.html', mensaje=error)
+
+    next_id = resultado[0][0]
+    folio_inversion = '1I' + str(next_id).zfill(4)
+
+    if request.method == 'POST':
+        comando = f"INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa, tipo_inversion, monto_invertido) VALUES ('{folio_inversion}', '{contrato}', '{tasa}', '{tipo_de_inversion}', '{monto_de_inversion}')"
+        print(comando)
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('alta_inversion.html', mensaje=error)
+
+    return render_template('alta_inversion.html', mensaje='Inversión registrado con éxito')
+
+
+
+@app.route('/modificar_inversion', methods=['GET', 'POST'])
+def modificar_inversion():
+    resultados = []
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            comando = "SELECT * FROM inversiones "
+            i = 1
+            longitud = len(valores)
+            longitud -= 1 if 'null' in valores else 0
+            for llave, valor in valores.items():
+                if llave != 'null':
+                    if i == 1:
+                        comando += " WHERE "
+                    comando += llave + " = '" + valor+"' "
+                    if i < longitud:
+                        comando += " AND "
+                        i = i + 1
+        else:
+            comando = "SELECT * FROM inversiones"
+
+    # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
+    for esquema in ESQUEMAS:
+        resultado, error = conectar_nodo(esquema, comando)
+        if not error == '':
+            return render_template('inversiones.html', inversiones=[], mensaje=error)
+        resultados += resultado
+
+    return render_template('modificar_inversion.html', inversiones=resultados, mensaje='')
+    
+@app.route('/modificacion_inversion', methods=['GET', 'POST'])
+def modificacion_inversion():
+    if request.method == 'POST':
+        inversion = request.form.to_dict()
+        print(inversion)
+    if request.method == 'POST':
+        comandoTasa = 'SELECT * FROM tasa'
+
+    resultadoTasa, errorTasa = conectar_nodo(ESQUEMA_A, comandoTasa)
+    if not errorTasa == '':
+        return render_template('modificar_inversion.html', resultadoContrato=[], tasas=[], mensajeTasa=errorTasa)
+    return render_template('modificacion_inversion.html', tasas=resultadoTasa,  inversion = inversion, mensaje = '')   
+
+@app.route('/actualizar_inversion', methods=['GET', 'POST'])
+def actualizar_inversion():
+    if request.method == 'POST':
+        print(request.form.get('clave_tasa'))
+        inversion = request.form.to_dict()
+        comando = f"UPDATE inversiones SET clave_tasa = '{inversion['clave_tasa']}' WHERE id = '{inversion['id']}'"
+        print(comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    print(resultado)
+    if not error == '':
+        return render_template('modificar_inversion.html', resultado=resultado, mensaje=error)
+
+    return render_template('modificar_inversion.html',resultado = resultado, mensaje = 'Inversión actualizada con éxito')
+
+
+
+@app.route('/baja_inversiones', methods=['GET', 'POST'])
+def baja_inversiones():
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            print(valores)
+
+            comando = "SELECT * FROM inversiones "
+            i = 1
+            longitud = len(valores)
+            longitud -= 1 if 'null' in valores else 0
+            for llave, valor in valores.items():
+                if llave != 'null':
+                    if i == 1:
+                        comando += " WHERE "
+                    comando += llave + " = '" + valor+"' "
+                    if i < longitud:
+                        comando += " AND "
+                    i = i + 1
+            print(comando)
+        else:
+            comando = 'SELECT * FROM inversiones'
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('baja_inversiones.html', inversiones=[], mensaje=error)
+    
+    return render_template('baja_inversiones.html', inversiones=resultado, mensaje='')
+
+@app.route('/eliminar_inversion', methods=['GET', 'POST'])
+def eliminar_inversion():
+    if request.method == 'POST':
+        print(request.form.get('id'))
+        contrato = request.form.to_dict()
+        comando = f"DELETE FROM inversiones WHERE id = '{contrato['id']}'"
+
+        print(comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    print(resultado)
+    if not error == '':
+        return render_template('baja_inversiones.html', resultado=resultado, mensaje=error)
+
+    return render_template('baja_inversiones.html',resultado = resultado, mensaje = 'Inversión eliminado con éxito')
+
+# FIN DE INVERSIONES
 
 @app.route('/clientes', methods=['GET', 'POST'])
 def clientes():
     if request.method == 'POST':
-        if 'valores' in request.form:
+        if 'valores' in request.form:            
             valores = json.loads(request.form['valores'])
             comando = "SELECT * FROM clientes "
             i = 1
@@ -239,4 +658,4 @@ def inversionesClientes():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.29.197.96', port=5000)
+    app.run(debug=True, host='172.29.102.117', port=5000)

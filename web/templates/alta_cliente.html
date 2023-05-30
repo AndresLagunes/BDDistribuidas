@@ -8,44 +8,42 @@
 </head>
 
 <body>
-  <h1>Clientes</h1>
+  <h1>Alta de Cliente</h1>
   <!-- <form action="/clientes" method="post">
     <input type="submit" name="clientes" value="Buscar">
     <input type="text" name="campo_rfc" placeholder="RFC">
   </form> -->
-  <form action="/clientes" id="miFormulario" method="post" class="header">
+  <form action="/altas" id="miFormulario" method="post" class="header">
     <a href="/" class="boton">Inicio</a>
-    <input type="submit" name="clientes" value="Buscar">
-    
+    <input type="submit" name="clientes" value="Altas">
+  </form>
+
+  {% if mensaje != '' %}
+  <p>{{ mensaje }}</p>
+  {% endif %}
+
+  <form action="/crear_cliente" id="formularioCrearC" method="post" class="" onsubmit="return validarFormulario();">
+    <label for="rfc">RFC:</label><br>
+    <input type="text" name="rfc" id="rfc"><br><br>
+    <label for="nombre">Nombre:</label><br>
+    <input type="text" name="nombre" id="nombre"><br><br>
+    <label for="apellido_paterno">Apellido Paterno:</label><br>
+    <input type="text" name="apellido_paterno" id="apellido_paterno"><br><br>
+    <label for="apellido_materno">Apellido Materno:</label><br>
+    <input type="text" name="apellido_materno" id="apellido_materno"><br><br>
+    <label for="direccion">Dirección:</label><br>
+    <input type="text" name="direccion" id="direccion"><br><br>
+    <label for="telefono">Teléfono:</label><br>
+    <input type="text" name="telefono" id="telefono"><br><br>
+    <label for="email">Email:</label><br>
+    <input type="text" name="email" id="email"><br><br>
+
+    <input type="submit" name="guardar" value="Guardar">
 
   </form>
 
-  <form action="/crear_cliente" id="formularioCrear" method="post" class="header">
-    <input type="text" name="rfc">
-    <input type="text" name="nombre">
-    <input type="text" name="apellido_paterno">
-    <input type="text" name="apellido_materno">
-    <input type="text" name="direccion">
-    <input type="text" name="telefono">
-    <input type="text" name="email">
 
-
-  </form>
-
-
-  
-  <!-- <th name="rfc">RFC</th>
-  <th name="nombre">Nombre</th>
-  <th name="apellido_paterno">Apellido Paterno</th>
-  <th name="apellido_materno">Apellido Materno</th>
-  <th name="direccion">Dirección</th>
-  <th name="telefono">Teléfono</th>
-  <th name="email">Email</th>
-  <th name="sucursal">Sucursal</th>
-  <th name="ganancias">Ganancias</th> -->
-
-  <script src="{{ url_for('static', filename='filtros.js') }}"></script>
-  <script src="{{ url_for('static', filename='ganancias.js') }}"></script>
+  <script src="{{ url_for('static', filename='alta_clientes.js') }}"></script>
 
 </body>
 </html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Contratos</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Alta de Contrato</h1>
+  
+  <form action="/altas" id="miFormulario" method="post" class="header">
+    <a href="/" class="boton">Inicio</a>
+    <input type="submit" name="clientes" value="Altas">
+  </form>
+  {% if mensaje != '' %}
+  <p>{{ mensaje }}</p>
+  {% endif %}
+
+  <form action="/crear_contrato" id="formularioCrear" method="post" class="" onsubmit="return validarFormulario();">
+    <label for="cliente">Cliente:</label><br>
+    <select id="cliente" name="cliente">
+        <option value=""> --- </option>
+        {% for cliente in clientes %}
+          <option value="{{ cliente[0] }}">{{ cliente[0] }} - {{ cliente[1] + " " + cliente[2] + " " + cliente[3]}}</option>
+        {% endfor %}
+      </select>
+    <br><br>
+
+    <label for="fecha_inicio">Fecha de Inicio:</label><br>
+    <input type="date" id="fecha_inicio" name="fecha_inicio"><br><br>
+
+    <label for="fecha_vencimiento">Fecha de Vencimiento:</label><br>
+    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento"><br><br>
+
+    <input type="submit" name="guardar" value="Guardar">
+
+  </form>
+
+
+  <script src="{{ url_for('static', filename='alta_contratos.js') }}"></script>
+
+</body>
+</html>

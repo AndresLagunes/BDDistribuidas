@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inversiones el TEC</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Baja de datos</h1>
+    <p>Selecciona una opción</p>
+    <form action="/" method="post" style="width: 20%; text-align: center;">
+        <a href="/" class="boton">Inicio</a>
+    </form>
+    <form action="/baja_clientes" method="post" style="width: 20%; text-align: center;">
+        <input type="submit" name="baja_cliente" value="Baja de Clientes" class="boton_inicio">
+    </form>
+    <form action="/baja_contratos" method="post" style="width: 20%; text-align: center;">
+        <input type="submit" name="baja_contrato" value="Baja de Contratos" class="boton_inicio">
+    </form>
+    <form action="/baja_inversiones" method="post" style="width: 20%; text-align: center;">
+        <input type="submit" name="baja_inversiones" value="Baja de Inversiones" class="boton_inicio">
+    </form>
+    
+</body>
+</html>

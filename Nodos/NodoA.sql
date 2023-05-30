@@ -14,65 +14,78 @@ apellido_materno VARCHAR(15),
 direccion VARCHAR(150),
 telefono CHAR(13) UNIQUE,
 email VARCHAR(50) UNIQUE,
-sucursal INT(1)
+sucursal INT(1) GENERATED ALWAYS AS (1) VIRTUAL
 );
 
-CREATE TABLE contrato_inversion (
-folio_contrato CHAR(8) PRIMARY KEY NOT NULL,
-sucursal INT(1),
-rfc_cliente CHAR(13),
-fecha_inicio DATETIME,
-fecha_vencimiento DATE,
-CONSTRAINT fk_rfc_cliente FOREIGN KEY (rfc_cliente) REFERENCES clientes(rfc)
-);
+CREATE TABLE `contrato_inversion` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sucursal` int DEFAULT '1',
+  `rfc_cliente` char(13) DEFAULT NULL,
+  `fecha_inicio` datetime DEFAULT NULL,
+  `fecha_vencimiento` date DEFAULT NULL,
+  `folio_contrato` char(14) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_rfc_cliente` (`rfc_cliente`),
+  KEY `idx_folio_contrato` (`folio_contrato`),
+  CONSTRAINT `fk_rfc_cliente` FOREIGN KEY (`rfc_cliente`) REFERENCES `clientes` (`rfc`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE inversiones (
-folio_inversion CHAR(5) PRIMARY KEY NOT NULL,
-folio_contrato CHAR(8),
-clave_tasa CHAR(5),
-tipo_inversion VARCHAR(30),
-monto_invertido DECIMAL(12,2),
-monto_ganado DECIMAL(14,4),
-CONSTRAINT fk_folio_contrato FOREIGN KEY (folio_contrato) REFERENCES contrato_inversion(folio_contrato),
-CONSTRAINT fk_clave_tasa FOREIGN KEY (clave_tasa) REFERENCES tasa(clave_tasa)
-);
+
+CREATE TABLE `inversiones` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `folio_inversion` char(8) DEFAULT NULL,
+  `folio_contrato` char(14) DEFAULT NULL,
+  `clave_tasa` char(5) DEFAULT NULL,
+  `tipo_inversion` varchar(30) DEFAULT NULL,
+  `monto_invertido` decimal(12,2) DEFAULT NULL,
+  `monto_ganado` decimal(14,4) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_clave_tasa` (`clave_tasa`),
+  KEY `fk_folio_contrato` (`folio_contrato`),
+  CONSTRAINT `fk_clave_tasa` FOREIGN KEY (`clave_tasa`) REFERENCES `tasa` (`clave_tasa`),
+  CONSTRAINT `fk_folio_contrato` FOREIGN KEY (`folio_contrato`) REFERENCES `contrato_inversion` (`folio_contrato`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
 -- llenado de datos
 -- Clientes
-INSERT INTO clientes (RFC, nombre, apellido_paterno, apellido_materno, direccion, telefono, email, sucursal) VALUES
-('AAAA010101AAA', 'Juan', 'Pérez', 'García', 'Calle 1, Colonia Centro, Ciudad de México', '5555555555', 'juan.perez@example.com', 1),
-('AAAA010102AAA', 'María', 'González', 'López', 'Avenida 2, Colonia Del Valle, Ciudad de México', '5555555556', 'maria.gonzalez@example.com', 1),
-('AAAA010103AAA', 'Pedro', 'Martínez', 'Gómez', 'Calle 3, Colonia Roma, Ciudad de México', '5555555557', 'pedro.martinez@example.com', 1),
-('AAAA010104AAA', 'Ana', 'Hernández', 'Pérez', 'Calle 4, Colonia Condesa, Ciudad de México', '5555555558', 'ana.hernandez@example.com', 1),
-('AAAA010105AAA', 'Luis', 'Sánchez', 'Ramírez', 'Calle 5, Colonia Narvarte, Ciudad de México', '5555555559', 'luis.sanchez@example.com', 1),
-('AAAA010106AAA', 'Carla', 'Jiménez', 'Torres', 'Calle 6, Colonia Coyoacán, Ciudad de México', '5555555560', 'carla.jimenez@example.com', 1),
-('AAAA010107AAA', 'Jorge', 'Castillo', 'Ruiz', 'Calle 7, Colonia Polanco, Ciudad de México', '5555555561', 'jorge.castillo@example.com', 1),
-('AAAA010108AAA', 'Mónica', 'Guzmán', 'Santos', 'Calle 8, Colonia Santa Fe, Ciudad de México', '5555555562', 'monica.guzman@example.com', 1),
-('AAAA010109AAA', 'Felipe', 'López', 'Fernández', 'Calle 9, Colonia Reforma, Ciudad de México', '5555555563', 'felipe.lopez@example.com', 1),
-('AAAA010110AAA', 'Sofía', 'Ramírez', 'Vargas', 'Calle 10, Colonia Vallejo, Ciudad de México', '5555555564', 'sofia.ramirez@example.com', 1),
-('BBBB010112BBB', 'Ricardo', 'Martínez', 'García', 'Calle 11, Colonia Centro, Guadalajara, Jalisco', '5555555565', 'ricardo.martinez@example.com', 2),
-('BBBB010113BBB', 'Carmen', 'Hernández', 'López', 'Avenida 12, Colonia Providencia, Guadalajara, Jalisco', '5555555566', 'carmen.hernandez@example.com', 2),
-('BBBB010114BBB', 'José', 'González', 'Ramírez', 'Calle 13, Colonia Chapalita, Guadalajara, Jalisco', '5555555567', 'jose.gonzalez@example.com', 2),
-('BBBB010115BBB', 'Verónica', 'Pérez', 'Vargas', 'Calle 14, Colonia Tlaquepaque, Guadalajara, Jalisco', '5555555568', 'veronica.perez@example.com', 2),
-('BBBB010116BBB', 'Roberto', 'Sánchez', 'Gómez', 'Calle 15, Colonia El Rosario, Guadalajara, Jalisco', '5555555569', 'roberto.sanchez@example.com', 2),
-('BBBB010117BBB', 'Fernanda', 'López', 'Torres', 'Calle 16, Colonia La Estancia, Guadalajara, Jalisco', '5555555570', 'fernanda.lopez@example.com', 2),
-('BBBB010118BBB', 'Juan', 'Castillo', 'Santos', 'Calle 17, Colonia Las Fuentes, Guadalajara, Jalisco', '5555555571', 'juan.castillo@example.com', 2),
-('BBBB010119BBB', 'María', 'Guzmán', 'Fernández', 'Calle 18, Colonia Arcos Vallarta, Guadalajara, Jalisco', '5555555572', 'maria.guzman@example.com', 2),
-('BBBB010120BBB', 'Pedro', 'Ramírez', 'Ruiz', 'Calle 19, Colonia San Isidro, Guadalajara, Jalisco', '5555555573', 'pedro.ramirez@example.com', 2),
-('BBBB010121BBB', 'Lucía', 'Hernández', 'Pérez', 'Calle 20, Colonia La Calma, Guadalajara, Jalisco', '5555555574', 'lucia.hernandez@example.com', 2),
-('CCCC010121CCC', 'Fabiola', 'González', 'Torres', 'Calle 21, Colonia Centro, Monterrey, Nuevo León', '5555555575', 'fabiola.gonzalez@example.com', 3),
-('CCCC010122CCC', 'Andrés', 'Pérez', 'García', 'Avenida 22, Colonia San Jerónimo, Monterrey, Nuevo León', '5555555576', 'andres.perez@example.com', 3),
-('CCCC010123CCC', 'Ana', 'Hernández', 'López', 'Calle 23, Colonia Del Valle, Monterrey, Nuevo León', '5555555577', 'ana.hernandez2@example.com', 3),
-('CCCC010124CCC', 'Luis', 'Ramírez', 'Gómez', 'Calle 24, Colonia Cumbres, Monterrey, Nuevo León', '5555555578', 'luis.ramirez@example.com', 3),
-('CCCC010125CCC', 'María', 'García', 'Ramírez', 'Calle 25, Colonia Obispado, Monterrey, Nuevo León', '5555555579', 'maria.garcia@example.com', 3),
-('CCCC010126CCC', 'José', 'Martínez', 'Sánchez', 'Calle 26, Colonia Mitras Centro, Monterrey, Nuevo León', '5555555580', 'jose.martinez@example.com', 3),
-('CCCC010127CCC', 'Fernando', 'Castillo', 'Fernández', 'Calle 27, Colonia Altavista, Monterrey, Nuevo León', '5555555581', 'fernando.castillo@example.com', 3),
-('CCCC010128CCC', 'Sofía', 'Gómez', 'Santos', 'Calle 28, Colonia Loma Larga, Monterrey, Nuevo León', '5555555582', 'sofia.gomez@example.com', 3),
-('CCCC010129CCC', 'Alejandro', 'Sánchez', 'López', 'Calle 29, Colonia Anáhuac, Monterrey, Nuevo León', '5555555583', 'alejandro.sanchez@example.com', 3),
-('CCCC010130CCC', 'Diana', 'Ramírez', 'Torres', 'Calle 30, Colonia San Pedro, Monterrey, Nuevo León', '5555555584', 'diana.ramirez@example.com', 3);
+INSERT INTO clientes (RFC, nombre, apellido_paterno, apellido_materno, direccion, telefono, email) VALUES
+('AAAA010101AAA', 'Juan', 'Pérez', 'García', 'Calle 1, Colonia Centro, Ciudad de México', '5555555555', 'juan.perez@example.com' ),
+('AAAA010102AAA', 'María', 'González', 'López', 'Avenida 2, Colonia Del Valle, Ciudad de México', '5555555556', 'maria.gonzalez@example.com' ),
+('AAAA010103AAA', 'Pedro', 'Martínez', 'Gómez', 'Calle 3, Colonia Roma, Ciudad de México', '5555555557', 'pedro.martinez@example.com' ),
+('AAAA010104AAA', 'Ana', 'Hernández', 'Pérez', 'Calle 4, Colonia Condesa, Ciudad de México', '5555555558', 'ana.hernandez@example.com' ),
+('AAAA010105AAA', 'Luis', 'Sánchez', 'Ramírez', 'Calle 5, Colonia Narvarte, Ciudad de México', '5555555559', 'luis.sanchez@example.com' ),
+('AAAA010106AAA', 'Carla', 'Jiménez', 'Torres', 'Calle 6, Colonia Coyoacán, Ciudad de México', '5555555560', 'carla.jimenez@example.com' ),
+('AAAA010107AAA', 'Jorge', 'Castillo', 'Ruiz', 'Calle 7, Colonia Polanco, Ciudad de México', '5555555561', 'jorge.castillo@example.com' ),
+('AAAA010108AAA', 'Mónica', 'Guzmán', 'Santos', 'Calle 8, Colonia Santa Fe, Ciudad de México', '5555555562', 'monica.guzman@example.com' ),
+('AAAA010109AAA', 'Felipe', 'López', 'Fernández', 'Calle 9, Colonia Reforma, Ciudad de México', '5555555563', 'felipe.lopez@example.com' ),
+('AAAA010110AAA', 'Sofía', 'Ramírez', 'Vargas', 'Calle 10, Colonia Vallejo, Ciudad de México', '5555555564', 'sofia.ramirez@example.com' ),
+('BBBB010112BBB', 'Ricardo', 'Martínez', 'García', 'Calle 11, Colonia Centro, Guadalajara, Jalisco', '5555555565', 'ricardo.martinez@example.com' ),
+('BBBB010113BBB', 'Carmen', 'Hernández', 'López', 'Avenida 12, Colonia Providencia, Guadalajara, Jalisco', '5555555566', 'carmen.hernandez@example.com' ),
+('BBBB010114BBB', 'José', 'González', 'Ramírez', 'Calle 13, Colonia Chapalita, Guadalajara, Jalisco', '5555555567', 'jose.gonzalez@example.com' ),
+('BBBB010115BBB', 'Verónica', 'Pérez', 'Vargas', 'Calle 14, Colonia Tlaquepaque, Guadalajara, Jalisco', '5555555568', 'veronica.perez@example.com' ),
+('BBBB010116BBB', 'Roberto', 'Sánchez', 'Gómez', 'Calle 15, Colonia El Rosario, Guadalajara, Jalisco', '5555555569', 'roberto.sanchez@example.com' ),
+('BBBB010117BBB', 'Fernanda', 'López', 'Torres', 'Calle 16, Colonia La Estancia, Guadalajara, Jalisco', '5555555570', 'fernanda.lopez@example.com' ),
+('BBBB010118BBB', 'Juan', 'Castillo', 'Santos', 'Calle 17, Colonia Las Fuentes, Guadalajara, Jalisco', '5555555571', 'juan.castillo@example.com' ),
+('BBBB010119BBB', 'María', 'Guzmán', 'Fernández', 'Calle 18, Colonia Arcos Vallarta, Guadalajara, Jalisco', '5555555572', 'maria.guzman@example.com' ),
+('BBBB010120BBB', 'Pedro', 'Ramírez', 'Ruiz', 'Calle 19, Colonia San Isidro, Guadalajara, Jalisco', '5555555573', 'pedro.ramirez@example.com' ),
+('BBBB010121BBB', 'Lucía', 'Hernández', 'Pérez', 'Calle 20, Colonia La Calma, Guadalajara, Jalisco', '5555555574', 'lucia.hernandez@example.com' ),
+('CCCC010121CCC', 'Fabiola', 'González', 'Torres', 'Calle 21, Colonia Centro, Monterrey, Nuevo León', '5555555575', 'fabiola.gonzalez@example.com' ),
+('CCCC010122CCC', 'Andrés', 'Pérez', 'García', 'Avenida 22, Colonia San Jerónimo, Monterrey, Nuevo León', '5555555576', 'andres.perez@example.com' ),
+('CCCC010123CCC', 'Ana', 'Hernández', 'López', 'Calle 23, Colonia Del Valle, Monterrey, Nuevo León', '5555555577', 'ana.hernandez2@example.com' ),
+('CCCC010124CCC', 'Luis', 'Ramírez', 'Gómez', 'Calle 24, Colonia Cumbres, Monterrey, Nuevo León', '5555555578', 'luis.ramirez@example.com' ),
+('CCCC010125CCC', 'María', 'García', 'Ramírez', 'Calle 25, Colonia Obispado, Monterrey, Nuevo León', '5555555579', 'maria.garcia@example.com' ),
+('CCCC010126CCC', 'José', 'Martínez', 'Sánchez', 'Calle 26, Colonia Mitras Centro, Monterrey, Nuevo León', '5555555580', 'jose.martinez@example.com' ),
+('CCCC010127CCC', 'Fernando', 'Castillo', 'Fernández', 'Calle 27, Colonia Altavista, Monterrey, Nuevo León', '5555555581', 'fernando.castillo@example.com' ),
+('CCCC010128CCC', 'Sofía', 'Gómez', 'Santos', 'Calle 28, Colonia Loma Larga, Monterrey, Nuevo León', '5555555582', 'sofia.gomez@example.com' ),
+('CCCC010129CCC', 'Alejandro', 'Sánchez', 'López', 'Calle 29, Colonia Anáhuac, Monterrey, Nuevo León', '5555555583', 'alejandro.sanchez@example.com' ),
+('CCCC010130CCC', 'Diana', 'Ramírez', 'Torres', 'Calle 30, Colonia San Pedro, Monterrey, Nuevo León', '5555555584', 'diana.ramirez@example.com' );
 
 -- Tasa
 INSERT INTO tasa (clave_tasa, tasa_interes) VALUES
@@ -85,17 +98,17 @@ INSERT INTO tasa (clave_tasa, tasa_interes) VALUES
 
 
 -- Contrato Inversion
-INSERT INTO contrato_inversion (folio_contrato, sucursal, rfc_cliente, fecha_inicio, fecha_vencimiento) VALUES
-('1cAAAA01', 1, 'AAAA010101AAA', '2019-01-01-15:15:15', '2020-01-01'),
-('1cAAAA02', 1, 'AAAA010102AAA', '2019-05-23-16:16:16', '2020-05-23'),
-('1cAAAA03', 1, 'AAAA010103AAA', '2020-01-01-17:17-17', '2021-01-01'),
-('1cAAAA04', 1, 'AAAA010104AAA', '2020-05-23-15:16:17', '2021-05-23'),
-('1cAAAA05', 1, 'AAAA010105AAA', '2021-01-01-17:16:15', '2022-01-01'),
-('1cAAAA06', 1, 'AAAA010106AAA', '2021-05-23-11:11:11', '2022-05-23'),
-('1cAAAA07', 1, 'AAAA010107AAA', '2022-01-01-11:11:13', '2023-01-01'),
-('1cAAAA08', 1, 'AAAA010108AAA', '2022-05-23-12:12:13', '2023-05-23'),
-('1cAAAA09', 1, 'AAAA010109AAA', '2023-01-01-20:20:20', '2024-01-01'),
-('1cAAAA10', 1, 'AAAA010110AAA', '2023-05-23-21:21:21', '2024-05-23');
+INSERT INTO contrato_inversion ( rfc_cliente, fecha_inicio, fecha_vencimiento) VALUES
+( 'AAAA010101AAA', '2019-01-01-15:15:15', '2020-01-01'),
+( 'AAAA010102AAA', '2019-05-23-16:16:16', '2020-05-23'),
+( 'AAAA010103AAA', '2020-01-01-17:17-17', '2021-01-01'),
+( 'AAAA010104AAA', '2020-05-23-15:16:17', '2021-05-23'),
+( 'AAAA010105AAA', '2021-01-01-17:16:15', '2022-01-01'),
+( 'AAAA010106AAA', '2021-05-23-11:11:11', '2022-05-23'),
+( 'AAAA010107AAA', '2022-01-01-11:11:13', '2023-01-01'),
+( 'AAAA010108AAA', '2022-05-23-12:12:13', '2023-05-23'),
+( 'AAAA010109AAA', '2023-01-01-20:20:20', '2024-01-01'),
+( 'AAAA010110AAA', '2023-05-23-21:21:21', '2024-05-23');
 
 
 -- Inversion
@@ -117,3 +130,8 @@ INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa, monto_inve
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------
+-- TRIGGER DE FOLIO_CONTRATO
+CREATE TRIGGER generar_folio_contrato
+BEFORE INSERT ON contrato_inversion
+FOR EACH ROW
+SET NEW.folio_contrato = CONCAT(NEW.sucursal, LPAD(NEW.id, 5, '0'), LEFT(NEW.rfc_cliente,6));

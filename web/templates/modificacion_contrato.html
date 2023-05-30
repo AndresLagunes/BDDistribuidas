@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Contratos</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+  <h1>Modificación de Contrato</h1>
+  <form action="/modificaciones" id="miFormulario" method="post" class="header">
+    <a href="/" class="boton">Inicio</a>
+    <input type="submit" name="contratos" value="Modificaciones">
+  </form>
+
+  <form action="/actualizar_contrato" id="formularioCrear" method="post" class="">
+    <label for="id">Número de Contrato:</label><br>
+    <input type="text" name="id" value="{{contrato['id']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="sucursal">Sucursal:</label><br>
+    <input type="text" name="sucursal" value="{{contrato['sucursal']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="rfc_cliente">RFC del Cliente:</label><br>
+    <input type="text" name="rfc_cliente" value="{{contrato['rfc_cliente']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="fecha_inicio">Fecha de Inicio:</label><br>
+    <input type="text" name="fecha_inicio" value="{{contrato['fecha_inicio']}}" style="background-color: #cecece;" readonly><br><br>
+    <label for="fecha_vencimiento">Fecha de Vencimiento:</label><br>
+    <input type="date" name="fecha_vencimiento" value="{{contrato['fecha_vencimiento']}}"><br><br>
+    <label for="folio_contrato">Folio de Contrato:</label><br>
+    <input type="text" name="folio_contrato" value="{{contrato['folio_contrato']}}" style="background-color: #cecece;" readonly><br><br>
+  
+    <input type="submit" name="guardar" value="Guardar">
+
+  </form>
+
+
+
+  <!-- <script src="{{ url_for('static', filename='filtros.js') }}"></script> -->
+
+</body>
+</html>
