@@ -24,7 +24,7 @@
     <select id="contrato" name="contrato">
         <option value=""> --- </option>
         {% for contrato in resultadoContrato %}
-          <option value="{{ contrato[5] }}">{{ contrato[5] }}</option>
+          <option value="{{ contrato[0] }}">{{ contrato[0] }}{{contrato[1]}}</option>
         {% endfor %}
       </select>
     <br><br>

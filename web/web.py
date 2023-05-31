@@ -1,7 +1,16 @@
-# COMENTARIOS
+# COMENTARIOS - EQUIPO 1
+# INTEGRANTES:
+# Fontes Peña Angel De Jesus
+# Ruiz Cruz Juan Jose
+# Lagunes Hernández Jesús Andrés
+
+
+
+
 # En este archivo tenemos las conexiones, consultas, altas, modificaciones y bajas, funciona como
 # nuestro backend y es lo que comunica la apliación con la base de datos.
 # También maneja las conexiones con los nodos
+# 
 
 
 from flask import Flask, render_template, request, session, jsonify
@@ -399,17 +408,8 @@ def crear_inversion():
     tipo_de_inversion = request.form['tipo_de_inversion']
     monto_de_inversion = request.form['monto_de_inversion']
 
-    # Obtén el próximo ID
-    resultado, error = conectar_nodo(ESQUEMA_A, 'SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = "Inversiones_A" AND TABLE_NAME = "inversiones"')
-    print(resultado[0][0])
-    if not error == '':
-        return render_template('alta_inversion.html', mensaje=error)
-
-    next_id = resultado[0][0]
-    folio_inversion = '1I' + str(next_id).zfill(4)
-
     if request.method == 'POST':
-        comando = f"INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa, tipo_inversion, monto_invertido) VALUES ('{folio_inversion}', '{contrato}', '{tasa}', '{tipo_de_inversion}', '{monto_de_inversion}')"
+        comando = f"INSERT INTO inversiones (folio_contrato, clave_tasa, tipo_inversion, monto_invertido) VALUES ('{contrato}', '{tasa}', '{tipo_de_inversion}', '{monto_de_inversion}')"
         print(comando)
 
     resultado, error = conectar_nodo(ESQUEMA_A, comando)

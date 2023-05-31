@@ -27,7 +27,7 @@ CREATE TABLE `contrato_inversion` (
   KEY `fk_rfc_cliente` (`rfc_cliente`),
   KEY `idx_folio_contrato` (`folio_contrato`),
   CONSTRAINT `fk_rfc_cliente` FOREIGN KEY (`rfc_cliente`) REFERENCES `clientes` (`rfc`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 CREATE TABLE `inversiones` (
@@ -43,7 +43,7 @@ CREATE TABLE `inversiones` (
   KEY `fk_folio_contrato_sucursal` (`folio_contrato`,`sucursal`),
   CONSTRAINT `fk_clave_tasa` FOREIGN KEY (`clave_tasa`) REFERENCES `tasa` (`clave_tasa`),
   CONSTRAINT `fk_folio_contrato_sucursal` FOREIGN KEY (`folio_contrato`,`sucursal`) REFERENCES `contrato_inversion` (`folio_contrato`,`sucursal`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 
@@ -112,18 +112,50 @@ INSERT INTO contrato_inversion ( rfc_cliente, fecha_inicio, fecha_vencimiento) V
 
 
 -- Inversion
-INSERT INTO inversiones (folio_contrato, clave_tasa, monto_invertido, monto_ganado) VALUES
-('AAAA010101AAA', 'TasaB', 100000.00, 55.3375),
-('AAAA010102AAA', 'TasaE', 200000.00, 65465.41),
-('AAAA010103AAA', 'TasaA', 50000.00, 1234.5695),
-('AAAA010103AAA', 'TasaB', 70000.00, 2345.6778),
-('AAAA010104AAA', 'TasaC', 80000.00, 3456.7846),
-('AAAA010104AAA', 'TasaD', 90000.00, 4567.8946),
-('AAAA010105AAA', 'TasaE', 100000.00, 5678.9046),
-('AAAA010106AAA', 'TasaA', 110000.00, 6789.0145),
-('AAAA010108AAA', 'TasaA', 120000.00, 7890.1287),
-('AAAA010108AAA', 'TasaB', 130000.00, 8901.2356),
-('AAAA010109AAA', 'TasaC', 140000.00, 9012.3445),
-('AAAA010110AAA', 'TasaE', 150000.00, 12345.6714);
+-- INSERT INTO inversiones (folio_contrato, clave_tasa, monto_invertido, monto_ganado) VALUES
+-- ('AAAA010101AAA', 'TasaB', 100000.00, 55.3375),
+-- ('AAAA010102AAA', 'TasaE', 200000.00, 65465.41),
+-- ('AAAA010103AAA', 'TasaA', 50000.00, 1234.5695),
+-- ('AAAA010103AAA', 'TasaB', 70000.00, 2345.6778),
+-- ('AAAA010104AAA', 'TasaC', 80000.00, 3456.7846),
+-- ('AAAA010104AAA', 'TasaD', 90000.00, 4567.8946),
+-- ('AAAA010105AAA', 'TasaE', 100000.00, 5678.9046),
+-- ('AAAA010106AAA', 'TasaA', 110000.00, 6789.0145),
+-- ('AAAA010108AAA', 'TasaA', 120000.00, 7890.1287),
+-- ('AAAA010108AAA', 'TasaB', 130000.00, 8901.2356),
+-- ('AAAA010109AAA', 'TasaC', 140000.00, 9012.3445),
+-- ('AAAA010110AAA', 'TasaE', 150000.00, 12345.6714);
 
 
+-- TRIGGER DE FOLIO_CONTRATO
+DELIMITER //
+CREATE TRIGGER validar_insercion_contratos
+BEFORE INSERT ON contrato_inversion
+FOR EACH ROW
+BEGIN
+  DECLARE max_id INT;
+  SELECT MAX(folio_contrato) INTO max_id FROM contrato_inversion;
+  IF (NEW.sucursal IS NOT NULL AND NEW.sucursal <> 1) OR NEW.folio_contrato > max_id THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'No puedes insertar un valor manualmente en folio_contrato y el valor de sucursal debe ser 1 o NULL.';
+  END IF;
+END;
+//
+DELIMITER ;
+
+
+-- TRIGGER DE INVERSIÓN PARA IMPEDIR QUE SE META UNA SUCURSAL DIFERENTA LA 1 Y SE INGRESE ALGÚN ID
+DELIMITER //
+CREATE TRIGGER validar_insercion_inversiones
+BEFORE INSERT ON inversiones
+FOR EACH ROW
+BEGIN
+DECLARE max_id INT;
+  SELECT MAX(folio_inversion) INTO max_id FROM inversiones;
+  IF (NEW.sucursal IS NOT NULL AND NEW.sucursal <> 1) OR NEW.folio_inversion > max_id THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'No puedes insertar un valor manualmente en folio_inversion y el valor de sucursal debe ser 1 o NULL.';
+  END IF;
+END;
+//
+DELIMITER ;

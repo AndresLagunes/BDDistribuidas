@@ -19,19 +19,19 @@ tasa_interes DECIMAL(4,2)
 
 CREATE TABLE `contrato_inversion` (
   `folio_contrato` int NOT NULL AUTO_INCREMENT,
-  `sucursal` int DEFAULT '1',
+  `sucursal` int DEFAULT '2',
   `rfc_cliente` char(13) DEFAULT NULL,
   `fecha_inicio` datetime DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
   PRIMARY KEY (`folio_contrato`, `sucursal`),
   KEY `idx_folio_contrato` (`folio_contrato`),
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 
 CREATE TABLE `inversiones` (
   `folio_inversion` int NOT NULL AUTO_INCREMENT,
-  `sucursal` int DEFAULT '1',
+  `sucursal` int DEFAULT '2',
   `folio_contrato` int DEFAULT NULL,
   `clave_tasa` char(5) DEFAULT NULL,
   `tipo_inversion` varchar(30) DEFAULT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `inversiones` (
   KEY `fk_folio_contrato_sucursal` (`folio_contrato`,`sucursal`),
   CONSTRAINT `fk_clave_tasa` FOREIGN KEY (`clave_tasa`) REFERENCES `tasa` (`clave_tasa`),
   CONSTRAINT `fk_folio_contrato_sucursal` FOREIGN KEY (`folio_contrato`,`sucursal`) REFERENCES `contrato_inversion` (`folio_contrato`,`sucursal`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------
@@ -88,3 +88,36 @@ INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa,tipo_invers
 ('2I011', '2CBBBB10', 'TasaB', "Coca-Cola	", 1000.00, 74.2356),
 ('2I012', '2CBBBB10', 'TasaB', "Coca-Cola	", 1314.00, 89.2356);
 
+-- TRIGGER DE FOLIO_CONTRATO
+DELIMITER //
+CREATE TRIGGER validar_insercion_contratos
+BEFORE INSERT ON contrato_inversion
+FOR EACH ROW
+BEGIN
+  DECLARE max_id INT;
+  SELECT MAX(folio_contrato) INTO max_id FROM contrato_inversion;
+  IF (NEW.sucursal IS NOT NULL AND NEW.sucursal <> 2) OR NEW.folio_contrato > max_id THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'No puedes insertar un valor manualmente en folio_contrato y el valor de sucursal debe ser 2 o NULL.';
+  END IF;
+END;
+//
+DELIMITER ;
+
+
+-- TRIGGER DE INVERSIÓN PARA IMPEDIR QUE SE META UNA SUCURSAL DIFERENTA LA 2 Y SE INGRESE ALGÚN ID
+DELIMITER //
+CREATE TRIGGER validar_insercion_inversiones
+BEFORE INSERT ON inversiones
+FOR EACH ROW
+BEGIN
+DECLARE max_id INT;
+  SELECT MAX(folio_inversion) INTO max_id FROM inversiones;
+  IF (NEW.sucursal IS NOT NULL AND NEW.sucursal <> 2) OR NEW.folio_inversion > max_id THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'No puedes insertar un valor manualmente en folio_inversion y el valor de sucursal debe ser 2 o NULL.';
+  END IF;
+END;
+//
+DELIMITER ;
+INSERT INTO contrato_inversion (rfc_cliente, fecha_inicio, fecha_vencimiento) VALUES ('CCCC010130CCC', '2023-05-16', '2023-06-09')

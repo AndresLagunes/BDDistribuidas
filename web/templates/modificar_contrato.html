@@ -23,7 +23,6 @@
         <th name="rfc_cliente">RFC</th>
         <th name="fecha_inicio">Fecha Inicio</th>
         <th name="fecha_vencimiento">Fecha Vencimiento</th>
-        <th name="folio_contrato">Folio Contrato</th>
         <th name="ganancias">Modificar</th>
       </tr>
     </thead>
@@ -40,7 +39,6 @@
                 <input type="hidden" name="rfc_cliente" value="{{ contrato[2] }}">
                 <input type="hidden" name="fecha_inicio" value="{{ contrato[3] }}">
                 <input type="hidden" name="fecha_vencimiento" value="{{ contrato[4] }}">
-                <input type="hidden" name="folio_contrato" value="{{ contrato[5] }}">
                 <input type="submit" name="ganancias" value="Modificar" onclick="enviarDatosContrato('{{ contrato[0] }}')">
               </form>  
             </td>

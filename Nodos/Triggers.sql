@@ -1,8 +1,32 @@
 -- TRIGGER DE FOLIO_CONTRATO
-CREATE TRIGGER generar_folio_contrato
+DELIMITER //
+CREATE TRIGGER validar_insercion_contratos
 BEFORE INSERT ON contrato_inversion
 FOR EACH ROW
-SET NEW.folio_contrato = CONCAT(NEW.sucursal, LPAD(NEW.id, 5, '0'), LEFT(NEW.rfc_cliente,6));
+BEGIN
+  IF NEW.sucursal <> 1 OR NEW.folio_contrato IS NOT NULL THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'No se puede insertar un valor en folio_inversion y el valor de sucursal debe ser 1.';
+  END IF;
+END;
+//
+DELIMITER ;
+
+
+--TRIGGER DE INVERSIÓN PARA IMPEDIR QUE SE META UNA SUCURSAL DIFERENTA LA 1 Y SE INGRESE ALGÚN ID
+DELIMITER //
+CREATE TRIGGER validar_insercion_inversiones
+BEFORE INSERT ON inversiones
+FOR EACH ROW
+BEGIN
+  IF NEW.sucursal <> 1 OR NEW.folio_inversion IS NOT NULL THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'No se puede insertar un valor en folio_inversion y el valor de sucursal debe ser 1.';
+  END IF;
+END;
+//
+DELIMITER ;
+
 
 -- ¡¡¡¡¡¡¡¡¡¡¡¡¡NO SE OCUPA!!!!!!!!!!!!!!
 -- TRIGGER DE FOLIO_INVERSION

@@ -26,7 +26,7 @@
     <label for="fecha_vencimiento">Fecha de Vencimiento:</label><br>
     <input type="date" name="fecha_vencimiento" value="{{contrato['fecha_vencimiento']}}"><br><br>
     <label for="folio_contrato">Folio de Contrato:</label><br>
-    <input type="text" name="folio_contrato" value="{{contrato['folio_contrato']}}" style="background-color: #cecece;" readonly><br><br>
+    <input type="text" name="folio_contrato" value="{{contrato['id'] + contrato['sucursal']}}" style="background-color: #cecece;" readonly><br><br>
   
     <input type="submit" name="guardar" value="Guardar">
 
