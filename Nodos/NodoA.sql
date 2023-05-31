@@ -14,7 +14,7 @@ apellido_materno VARCHAR(15),
 direccion VARCHAR(150),
 telefono CHAR(13) UNIQUE,
 email VARCHAR(50) UNIQUE,
-sucursal INT(1) GENERATED ALWAYS AS (1) VIRTUAL
+sucursal INT(1)
 );
 
 CREATE TABLE `contrato_inversion` (

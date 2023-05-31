@@ -43,7 +43,7 @@ class Conexion:
         self.conexion.close()
 
 
-def conectar_nodo(esquema, comando, solo_esquema_a):
+def conectar_nodo(esquema, comando, solo_esquema_a=False):
     print(comando)
     resultado = []
     if solo_esquema_a:
@@ -110,6 +110,8 @@ ESQUEMA_C = 'Inversiones_C'
 
 #Esquema al que se va a conectar
 ESQUEMA_DEFAULT = ESQUEMA_A
+SUCURSAL = 1
+
 
 # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
 ESQUEMAS = [ESQUEMA_A, ESQUEMA_B, ESQUEMA_C]
@@ -178,7 +180,7 @@ def crear_cliente():
     email = request.form['email']
 
     if request.method == 'POST':
-        comando = f"INSERT INTO clientes (rfc, nombre, apellido_paterno, apellido_materno, direccion, telefono, email) VALUES ('{rfc}', '{nombre}', '{apellido_paterno}', '{apellido_materno}', '{direccion}', '{telefono}', '{email}')"
+        comando = f"INSERT INTO clientes (rfc, nombre, apellido_paterno, apellido_materno, direccion, telefono, email, sucursal) VALUES ('{rfc}', '{nombre}', '{apellido_paterno}', '{apellido_materno}', '{direccion}', '{telefono}', '{email}', '{SUCURSAL}')"
 
     # Resto del código para procesar los datos recibidos
 
