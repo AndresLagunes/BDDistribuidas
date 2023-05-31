@@ -24,7 +24,7 @@ CREATE TABLE `contrato_inversion` (
   `fecha_inicio` datetime DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
   PRIMARY KEY (`folio_contrato`, `sucursal`),
-  KEY `idx_folio_contrato` (`folio_contrato`),
+  KEY `idx_folio_contrato` (`folio_contrato`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -73,20 +73,20 @@ INSERT INTO contrato_inversion (rfc_cliente, fecha_inicio, fecha_vencimiento) VA
 
 
 
--- Inversion
-INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa, tipo_inversion, monto_invertido, monto_ganado) VALUES
-('3I001', '3CCCC01', 'TasaB', "Coca-Cola	", 100000.00, 55.3375),
-('3I002', '3CCCC02', 'TasaE', "Coca-Cola	", 200000.00, 65465.41),
-('3I003', '3CCCC03', 'TasaA', "Coca-Cola	", 50000.00, 1234.5695),
-('3I004', '3CCCC04', 'TasaB', "Coca-Cola	", 70000.00, 2345.6778),
-('3I005', '3CCCC04', 'TasaC', "Coca-Cola	", 80000.00, 3456.7846),
-('3I006', '3CCCC04', 'TasaD', "Coca-Cola	", 90000.00, 4567.8946),
-('3I007', '3CCCC05', 'TasaE', "Coca-Cola	", 100000.00, 5678.9046),
-('3I008', '3CCCC06', 'TasaA', "Coca-Cola	", 110000.00, 6789.0145),
-('3I009', '3CCCC07', 'TasaA', "Coca-Cola	", 120000.00, 7890.1287),
-('3I010', '3CCCC08', 'TasaB', "Coca-Cola	", 130000.00, 8901.2356),
-('3I011', '3CCCC09', 'TasaB', "Coca-Cola	", 1300.00, 890.2356),
-('3I012', '3CCCC10', 'TasaB', "Coca-Cola	", 1300.00, 890.2356);
+-- -- Inversion
+-- INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa, tipo_inversion, monto_invertido, monto_ganado) VALUES
+-- ('3I001', '3CCCC01', 'TasaB', "Coca-Cola	", 100000.00, 55.3375),
+-- ('3I002', '3CCCC02', 'TasaE', "Coca-Cola	", 200000.00, 65465.41),
+-- ('3I003', '3CCCC03', 'TasaA', "Coca-Cola	", 50000.00, 1234.5695),
+-- ('3I004', '3CCCC04', 'TasaB', "Coca-Cola	", 70000.00, 2345.6778),
+-- ('3I005', '3CCCC04', 'TasaC', "Coca-Cola	", 80000.00, 3456.7846),
+-- ('3I006', '3CCCC04', 'TasaD', "Coca-Cola	", 90000.00, 4567.8946),
+-- ('3I007', '3CCCC05', 'TasaE', "Coca-Cola	", 100000.00, 5678.9046),
+-- ('3I008', '3CCCC06', 'TasaA', "Coca-Cola	", 110000.00, 6789.0145),
+-- ('3I009', '3CCCC07', 'TasaA', "Coca-Cola	", 120000.00, 7890.1287),
+-- ('3I010', '3CCCC08', 'TasaB', "Coca-Cola	", 130000.00, 8901.2356),
+-- ('3I011', '3CCCC09', 'TasaB', "Coca-Cola	", 1300.00, 890.2356),
+-- ('3I012', '3CCCC10', 'TasaB', "Coca-Cola	", 1300.00, 890.2356);
 
 
 -- TRIGGER DE FOLIO_CONTRATO
