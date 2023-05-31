@@ -110,7 +110,7 @@ ESQUEMA_C = 'Inversiones_C'
 
 #Esquema al que se va a conectar
 ESQUEMA_DEFAULT = ESQUEMA_A
-SUCURSAL = 1
+SUCURSAL = 2
 
 
 # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
@@ -667,4 +667,4 @@ def inversionesClientes():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.29.102.117', port=5000)
+    app.run(debug=True, host='172.29.197.96', port=5000)
