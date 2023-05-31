@@ -43,9 +43,14 @@ class Conexion:
         self.conexion.close()
 
 
-def conectar_nodo(esquema, comando):
+def conectar_nodo(esquema, comando, solo_esquema_a):
     print(comando)
     resultado = []
+    if solo_esquema_a:
+        conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
+        if not conexion.conectar():
+            return resultado, 'No se pudo conectar a la base de datos donde se encuentran los clientes'
+        
     if esquema == ESQUEMA_A:
         conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
         if not conexion.conectar():
@@ -103,6 +108,9 @@ ESQUEMA_A = 'Inversiones_A'
 ESQUEMA_B = 'Inversiones_B'
 ESQUEMA_C = 'Inversiones_C'
 
+#Esquema al que se va a conectar
+ESQUEMA_DEFAULT = ESQUEMA_A
+
 # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
 ESQUEMAS = [ESQUEMA_A, ESQUEMA_B, ESQUEMA_C]
 # ESQUEMAS = [ESQUEMA_A]
@@ -129,6 +137,30 @@ def bajas():
 
 # CLIENTES
 
+@app.route('/clientes', methods=['GET', 'POST'])
+def clientes():
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            comando = "SELECT * FROM clientes "
+            i = 1
+            for llave, valor in valores.items():
+                if i == 1:
+                    comando += " WHERE "
+                comando += llave + " = '" + valor+"' "
+                if i < len(valores):
+                    comando += " AND "
+                    i = i + 1
+        else:
+            comando = 'SELECT * FROM clientes'
+
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    if not error == '':
+        return render_template('clientes.html', clientes=[], mensaje=error)
+
+    return render_template('clientes.html', clientes=resultado, mensaje='')
+
+
 @app.route('/alta_cliente', methods=['GET', 'POST'])
 def alta_cliente():
     return render_template('alta_cliente.html')
@@ -150,7 +182,7 @@ def crear_cliente():
 
     # Resto del código para procesar los datos recibidos
 
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
     if not error == '':
         return render_template('alta_cliente.html', mensaje=error)
 
@@ -179,7 +211,7 @@ def modificar_cliente():
         else:
             comando = 'SELECT * FROM clientes'
 
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
     if not error == '':
         return render_template('modificar_cliente.html', clientes=[], mensaje=error)
     
@@ -233,7 +265,7 @@ def baja_clientes():
         else:
             comando = 'SELECT * FROM clientes'
 
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
     if not error == '':
         return render_template('baja_clientes.html', clientes=[], mensaje=error)
     
@@ -247,7 +279,7 @@ def eliminar_cliente():
         comando = f"DELETE FROM clientes WHERE rfc = '{cliente['rfc']}'"
 
         print(comando)
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
     print(resultado)
     if not error == '':
         return render_template('baja_clientes.html', resultado=resultado, mensaje=error)
@@ -257,6 +289,32 @@ def eliminar_cliente():
 
 
 # CONTRATOS
+
+@app.route('/contratos', methods=['POST'])
+def contratos():
+    resultados = []
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            comando = "SELECT * FROM contrato_inversion "
+            i = 1
+            for llave, valor in valores.items():
+                if i == 1:
+                    comando += " WHERE "
+                comando += llave + " = '" + valor+"' "
+                if i < len(valores):
+                    comando += " AND "
+                    i = i + 1
+        else:
+            comando = 'SELECT * FROM contrato_inversion'
+    # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
+    for esquema in ESQUEMAS:
+        resultado, error = conectar_nodo(esquema, comando)
+        if not error == '':
+            return render_template('contratos.html', contratos=[], mensaje=error)
+        resultados += resultado
+
+    return render_template('contratos.html', contratos=resultados, mensaje='')
 
 @app.route('/alta_contrato', methods=['GET', 'POST'])
 def alta_contrato():
@@ -387,6 +445,33 @@ def eliminar_contrato():
 # FIN CONTRATOS
 
 # INVERSIONES
+
+@app.route('/inversiones', methods=['POST'])
+def inversiones():
+    resultados = []
+    if request.method == 'POST':
+        if 'valores' in request.form:
+            valores = json.loads(request.form['valores'])
+            comando = "SELECT * FROM inversiones "
+            i = 1
+            for llave, valor in valores.items():
+                if i == 1:
+                    comando += " WHERE "
+                comando += llave + " = '" + valor+"' "
+                if i < len(valores):
+                    comando += " AND "
+                    i = i + 1
+        else:
+            comando = "SELECT * FROM inversiones"
+
+    # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
+    for esquema in ESQUEMAS:
+        resultado, error = conectar_nodo(esquema, comando)
+        if not error == '':
+            return render_template('inversiones.html', inversiones=[], mensaje=error)
+        resultados += resultado
+
+    return render_template('inversiones.html', inversiones=resultados, mensaje='')
 
 @app.route('/alta_inversion', methods=['GET', 'POST'])
 def alta_inversion():
@@ -524,84 +609,6 @@ def eliminar_inversion():
     return render_template('baja_inversiones.html',resultado = resultado, mensaje = 'Inversión eliminado con éxito')
 
 # FIN DE INVERSIONES
-
-@app.route('/clientes', methods=['GET', 'POST'])
-def clientes():
-    if request.method == 'POST':
-        if 'valores' in request.form:            
-            valores = json.loads(request.form['valores'])
-            comando = "SELECT * FROM clientes "
-            i = 1
-            for llave, valor in valores.items():
-                if i == 1:
-                    comando += " WHERE "
-                comando += llave + " = '" + valor+"' "
-                if i < len(valores):
-                    comando += " AND "
-                    i = i + 1
-        else:
-            comando = 'SELECT * FROM clientes'
-
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    if not error == '':
-        return render_template('clientes.html', clientes=[], mensaje=error)
-
-    return render_template('clientes.html', clientes=resultado, mensaje='')
-
-
-@app.route('/contratos', methods=['POST'])
-def contratos():
-    resultados = []
-    if request.method == 'POST':
-        if 'valores' in request.form:
-            valores = json.loads(request.form['valores'])
-            comando = "SELECT * FROM contrato_inversion "
-            i = 1
-            for llave, valor in valores.items():
-                if i == 1:
-                    comando += " WHERE "
-                comando += llave + " = '" + valor+"' "
-                if i < len(valores):
-                    comando += " AND "
-                    i = i + 1
-        else:
-            comando = 'SELECT * FROM contrato_inversion'
-    # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
-    for esquema in ESQUEMAS:
-        resultado, error = conectar_nodo(esquema, comando)
-        if not error == '':
-            return render_template('contratos.html', contratos=[], mensaje=error)
-        resultados += resultado
-
-    return render_template('contratos.html', contratos=resultados, mensaje='')
-
-
-@app.route('/inversiones', methods=['POST'])
-def inversiones():
-    resultados = []
-    if request.method == 'POST':
-        if 'valores' in request.form:
-            valores = json.loads(request.form['valores'])
-            comando = "SELECT * FROM inversiones "
-            i = 1
-            for llave, valor in valores.items():
-                if i == 1:
-                    comando += " WHERE "
-                comando += llave + " = '" + valor+"' "
-                if i < len(valores):
-                    comando += " AND "
-                    i = i + 1
-        else:
-            comando = "SELECT * FROM inversiones"
-
-    # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
-    for esquema in ESQUEMAS:
-        resultado, error = conectar_nodo(esquema, comando)
-        if not error == '':
-            return render_template('inversiones.html', inversiones=[], mensaje=error)
-        resultados += resultado
-
-    return render_template('inversiones.html', inversiones=resultados, mensaje='')
 
 
 @app.route('/ganancias', methods=['POST'])
