@@ -43,53 +43,84 @@ class Conexion:
         self.conexion.close()
 
 
-def conectar_nodo(esquema, comando, solo_esquema_a=False):
+def conectar_nodo(esquema, comando, solo_esquema_a=False, nodo=''):
     print(comando)
     resultado = []
-    if solo_esquema_a:
-        conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
-        if not conexion.conectar():
-            return resultado, 'No se pudo conectar a la base de datos donde se encuentran los clientes'
-        
-    if esquema == ESQUEMA_A:
-        conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
-        if not conexion.conectar():
-            conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_B, ESQUEMA_A)
-            if not conexion.conectar():
-                conexion = Conexion(NODO_C, USER, PASSWORD,
-                                    PUERTO_C, ESQUEMA_A)
+    if nodo == '':
+        if solo_esquema_a:
+            if esquema == ESQUEMA_A:
+                conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
+                print('1')
                 if not conexion.conectar():
-                    return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_A)
+                    return resultado, 'No se pudo registrar el cliente en la Sucursal 1'
+            if esquema == ESQUEMA_B:
+                conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
+                print('2')
+                if not conexion.conectar():
+                    return resultado, 'No se pudo registrar el cliente en la Sucursal 2'
+            if esquema == ESQUEMA_C:
+                conexion = Conexion(NODO_C, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
+                print('3')
+                if not conexion.conectar():
+                    return resultado, 'No se pudo registrar el cliente en la Sucursal 3'  
+            
+        if esquema == ESQUEMA_A:
+            conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
+            if not conexion.conectar():
+                conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_B, ESQUEMA_A)
+                if not conexion.conectar():
+                    conexion = Conexion(NODO_C, USER, PASSWORD,
+                                        PUERTO_C, ESQUEMA_A)
+                    if not conexion.conectar():
+                        return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_A)
 
-    elif esquema == ESQUEMA_B:
-        conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_B, ESQUEMA_B)
-        if not conexion.conectar():
-            conexion = Conexion(NODO_C, USER, PASSWORD, PUERTO_C, ESQUEMA_B)
+        elif esquema == ESQUEMA_B:
+            conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_B, ESQUEMA_B)
             if not conexion.conectar():
-                conexion = Conexion(NODO_A, USER, PASSWORD,
-                                    PUERTO_A, ESQUEMA_B)
+                conexion = Conexion(NODO_C, USER, PASSWORD, PUERTO_C, ESQUEMA_B)
                 if not conexion.conectar():
-                    return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_B)
+                    conexion = Conexion(NODO_A, USER, PASSWORD,
+                                        PUERTO_A, ESQUEMA_B)
+                    if not conexion.conectar():
+                        return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_B)
 
-    elif esquema == ESQUEMA_C:
-        conexion = Conexion(NODO_C, USER, PASSWORD, PUERTO_C, ESQUEMA_C)
-        if not conexion.conectar():
-            conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_C)
+        elif esquema == ESQUEMA_C:
+            conexion = Conexion(NODO_C, USER, PASSWORD, PUERTO_C, ESQUEMA_C)
             if not conexion.conectar():
-                conexion = Conexion(NODO_B, USER, PASSWORD,
-                                    PUERTO_B, ESQUEMA_C)
+                conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_C)
                 if not conexion.conectar():
-                    return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_C)
-    try:
-        print(esquema)
-        print(conexion.host)
-        conexion.cursor.execute(comando)
-        conexion.conexion.commit()
-        resultado = conexion.cursor.fetchall()
-        conexion.desconectar()
-    except Exception as e:
-        print(e)
-        return resultado, 'No se pudo ejecutar el comando {}'.format(comando)
+                    conexion = Conexion(NODO_B, USER, PASSWORD,
+                                        PUERTO_B, ESQUEMA_C)
+                    if not conexion.conectar():
+                        return resultado, 'No se pudo conectar a la base de datos {}'.format(ESQUEMA_C)
+        try:
+            print(esquema)
+            print(conexion.host)
+            conexion.cursor.execute(comando)
+            conexion.conexion.commit()
+            resultado = conexion.cursor.fetchall()
+            conexion.desconectar()
+        except Exception as e:
+            print(e)
+            return resultado, 'No se pudo ejecutar el comando {}'.format(comando)
+    else:
+        print('intentando en nodo ' + nodo)
+        # cambia el puerto conforme el nodo que se utilice
+        puerto = PUERTO_A if nodo == NODO_A else PUERTO_B if nodo == NODO_B else PUERTO_C
+        conexion = Conexion(nodo, USER, PASSWORD, puerto, esquema)
+        if not conexion.conectar():
+            return resultado, 'No se pudo conectar al nodo {}'.format(nodo)
+        try:
+            print(esquema)
+            print(conexion.host)
+            conexion.cursor.execute(comando)
+            conexion.conexion.commit()
+            resultado = conexion.cursor.fetchall()
+            conexion.desconectar()
+        except Exception as e:
+            print(e)
+            return resultado, 'No se pudo ejecutar el comando {}'.format(comando)
+         
     return resultado, ''
 
 
@@ -99,6 +130,7 @@ PASSWORD = 'master'
 NODO_A = '172.29.102.117'
 NODO_B = '172.29.197.96'
 NODO_C = '172.29.38.254'
+NODOS = [NODO_A, NODO_B, NODO_C]
 
 PUERTO_A = 3306
 PUERTO_B = 3306
@@ -187,6 +219,17 @@ def crear_cliente():
     resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
     if not error == '':
         return render_template('alta_cliente.html', mensaje=error)
+    else:
+        resultado, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+        
+    if error2 != '' or error3 != '':
+        msg = ''
+        if error2 != '':
+            msg += 'Error al registrar en la Sucursa 2 \n'
+        if error3 != '':
+            msg += 'Error al registrar en la Sucursa 3 \n'
+        return render_template('alta_cliente.html', mensaje=('Cliente registrado con éxito en la Sucursal 1 \n '+ msg))
 
     return render_template('alta_cliente.html', mensaje='Cliente registrado con éxito')
 
@@ -213,7 +256,7 @@ def modificar_cliente():
         else:
             comando = 'SELECT * FROM clientes'
 
-    resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
+    resultado, error = conectar_nodo(ESQUEMA_A, comando)
     if not error == '':
         return render_template('modificar_cliente.html', clientes=[], mensaje=error)
     
@@ -241,6 +284,23 @@ def actualizar_cliente():
     print(resultado)
     if not error == '':
         return render_template('modificar_cliente.html', resultado=resultado, mensaje=error)
+    else:
+        resultado, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+        
+    if error2 != '' or error3 != '':
+        msg = ''
+        if error2 != '':
+            msg += 'Error al actualizar en la Sucursal 2 \n'
+        else:
+            msg += 'Cliente Actualizado con éxito en la Sucursal 2 \n'
+
+        if error3 != '':
+            msg += 'Error al actualizar en la Sucursa 3 \n'
+        else:
+            msg += 'Cliente Actualizado con éxito en la Sucursal 3 \n'
+            
+        return render_template('modificar_cliente.html', mensaje=('Cliente Actualizado con éxito en la Sucursal 1 \n '+ msg))
 
     return render_template('modificar_cliente.html',resultado = resultado, mensaje = 'Cliente actualizado con éxito')
 
@@ -285,6 +345,23 @@ def eliminar_cliente():
     print(resultado)
     if not error == '':
         return render_template('baja_clientes.html', resultado=resultado, mensaje=error)
+    else:
+        resultado, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+        
+    if error2 != '' or error3 != '':
+        msg = ''
+        if error2 != '':
+            msg += 'Error al eliminar en la Sucursal 2 \n'
+        else:
+            msg += 'Cliente eliminado con éxito en la Sucursal 2 \n'
+
+        if error3 != '':
+            msg += 'Error al eliminar en la Sucursa 3 \n'
+        else:
+            msg += 'Cliente eliminado con éxito en la Sucursal 3 \n'
+            
+        return render_template('baja_clientes.html', mensaje=('Cliente eliminado con éxito en la Sucursal 1 \n '+ msg))
 
     return render_template('baja_clientes.html',resultado = resultado, mensaje = 'Cliente eliminado con éxito')
 # FIN CLIENTES
@@ -341,9 +418,28 @@ def crear_contrato():
         comando = f"INSERT INTO contrato_inversion (rfc_cliente, fecha_inicio, fecha_vencimiento) VALUES ('{cliente}', '{fecha_inicio}', '{fecha_vencimiento}')"
         print(comando)
 
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    if not error == '':
-        return render_template('alta_contrato.html', mensaje=error)
+    resultados = []
+    errores = []
+    for nodo in NODOS:
+        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
+        resultados.append(resultado)
+        if error != '':
+            errores.append(error)
+
+    print(errores)
+        
+    if len(errores) == 3:
+        msg = 'No se pudo registrar el Contrato en ninguna base de datos \n'
+        for er in errores:
+            msg += er + ' \n'
+        return render_template('alta_contrato.html', mensaje=msg)
+    elif len(errores) > 0:
+        msg = 'No se pudo registrar el Contrato en todos los nodos: \n'
+        for er in errores:
+            msg += er+' \n'
+        return render_template('alta_contrato.html', mensaje=msg)
+
+
 
     return render_template('alta_contrato.html', mensaje='Contrato registrado con éxito')
 
@@ -391,12 +487,30 @@ def actualizar_contrato():
     if request.method == 'POST':
         print(request.form.get('fecha_vencimiento'))
         contrato = request.form.to_dict()
-        comando = f"UPDATE contrato_inversion SET fecha_vencimiento = '{contrato['fecha_vencimiento']}' WHERE id = '{contrato['id']}'"
+        comando = f"UPDATE contrato_inversion SET fecha_vencimiento = '{contrato['fecha_vencimiento']}' WHERE folio_contrato = '{contrato['id']}'"
         print(comando)
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    print(resultado)
-    if not error == '':
-        return render_template('modificar_contrato.html', resultado=resultado, mensaje=error)
+        
+    
+    resultados = []
+    errores = []
+    for nodo in NODOS:
+        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
+        resultados.append(resultado)
+        if error != '':
+            errores.append(error)
+
+    print(errores)
+        
+    if len(errores) == 3:
+        msg = 'No se pudo actualizar el Contrato en ninguna base de datos \n'
+        for er in errores:
+            msg += er + ' \n'
+        return render_template('modificar_contrato.html', mensaje=msg)
+    elif len(errores) > 0:
+        msg = 'No se pudo actualizar el Contrato en todos los nodos: \n'
+        for er in errores:
+            msg += er+' \n'
+        return render_template('modificar_contrato.html', mensaje=msg)
 
     return render_template('modificar_contrato.html',resultado = resultado, mensaje = 'Contrato actualizado con éxito')
 
@@ -435,13 +549,29 @@ def eliminar_contrato():
     if request.method == 'POST':
         print(request.form.get('id'))
         contrato = request.form.to_dict()
-        comando = f"DELETE FROM contrato_inversion WHERE id = '{contrato['id']}'"
-
+        comando = f"DELETE FROM contrato_inversion WHERE folio_contrato = '{contrato['id']}'"
         print(comando)
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    print(resultado)
-    if not error == '':
-        return render_template('baja_contratos.html', resultado=resultado, mensaje=error)
+
+    resultados = []
+    errores = []
+    for nodo in NODOS:
+        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
+        resultados.append(resultado)
+        if error != '':
+            errores.append(error)
+
+    print(errores)
+        
+    if len(errores) == 3:
+        msg = 'No se pudo eliminar el Contrato en ninguna base de datos \n'
+        for er in errores:
+            msg += er + ' \n'
+        return render_template('baja_contratos.html', mensaje=msg)
+    elif len(errores) > 0:
+        msg = 'No se pudo eliminar el Contrato en todos los nodos: \n'
+        for er in errores:
+            msg += er+' \n'
+        return render_template('baja_contratos.html', mensaje=msg)
 
     return render_template('baja_contratos.html',resultado = resultado, mensaje = 'Contrato eliminado con éxito')
 # FIN CONTRATOS
@@ -499,11 +629,29 @@ def crear_inversion():
         comando = f"INSERT INTO inversiones (folio_contrato, clave_tasa, tipo_inversion, monto_invertido) VALUES ('{contrato}', '{tasa}', '{tipo_de_inversion}', '{monto_de_inversion}')"
         print(comando)
 
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    if not error == '':
-        return render_template('alta_inversion.html', mensaje=error)
+    
+    resultados = []
+    errores = []
+    for nodo in NODOS:
+        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
+        resultados.append(resultado)
+        if error != '':
+            errores.append(error)
 
-    return render_template('alta_inversion.html', mensaje='Inversión registrado con éxito')
+    print(errores)
+        
+    if len(errores) == 3:
+        msg = 'No se pudo crear la Inversión en ninguna base de datos \n'
+        for er in errores:
+            msg += er + ' \n'
+        return render_template('alta_inversion.html', mensaje=msg)
+    elif len(errores) > 0:
+        msg = 'No se pudo crear la Inversión en todos los nodos: \n'
+        for er in errores:
+            msg += er+' \n'
+        return render_template('alta_inversion.html', mensaje=msg)
+
+    return render_template('alta_inversion.html', mensaje='Inversión registrada con éxito')
 
 
 
@@ -555,12 +703,29 @@ def actualizar_inversion():
     if request.method == 'POST':
         print(request.form.get('clave_tasa'))
         inversion = request.form.to_dict()
-        comando = f"UPDATE inversiones SET clave_tasa = '{inversion['clave_tasa']}' WHERE id = '{inversion['id']}'"
+        comando = f"UPDATE inversiones SET clave_tasa = '{inversion['clave_tasa']}' WHERE folio_inversion = '{inversion['id']}'"
         print(comando)
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    print(resultado)
-    if not error == '':
-        return render_template('modificar_inversion.html', resultado=resultado, mensaje=error)
+
+    resultados = []
+    errores = []
+    for nodo in NODOS:
+        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
+        resultados.append(resultado)
+        if error != '':
+            errores.append(error)
+
+    print(errores)
+        
+    if len(errores) == 3:
+        msg = 'No se pudo actualizar la Inversión en ninguna base de datos \n'
+        for er in errores:
+            msg += er + ' \n'
+        return render_template('modificar_inversion.html', mensaje=msg)
+    elif len(errores) > 0:
+        msg = 'No se pudo actualizar la Inversión en todos los nodos: \n'
+        for er in errores:
+            msg += er+' \n'
+        return render_template('modificar_inversion.html', mensaje=msg)        
 
     return render_template('modificar_inversion.html',resultado = resultado, mensaje = 'Inversión actualizada con éxito')
 
@@ -600,13 +765,29 @@ def eliminar_inversion():
     if request.method == 'POST':
         print(request.form.get('id'))
         contrato = request.form.to_dict()
-        comando = f"DELETE FROM inversiones WHERE id = '{contrato['id']}'"
+        comando = f"DELETE FROM inversiones WHERE folio_inversion = '{contrato['id']}'"
 
         print(comando)
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    print(resultado)
-    if not error == '':
-        return render_template('baja_inversiones.html', resultado=resultado, mensaje=error)
+    resultados = []
+    errores = []
+    for nodo in NODOS:
+        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
+        resultados.append(resultado)
+        if error != '':
+            errores.append(error)
+
+    print(errores)
+        
+    if len(errores) == 3:
+        msg = 'No se pudo eliminar la Inversión en ninguna base de datos \n'
+        for er in errores:
+            msg += er + ' \n'
+        return render_template('baja_inversiones.html', mensaje=msg)
+    elif len(errores) > 0:
+        msg = 'No se pudo eliminar la Inversión en todos los nodos: \n'
+        for er in errores:
+            msg += er+' \n'
+        return render_template('baja_inversiones.html', mensaje=msg)        
 
     return render_template('baja_inversiones.html',resultado = resultado, mensaje = 'Inversión eliminado con éxito')
 
