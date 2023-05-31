@@ -18,13 +18,12 @@ sucursal INT(1) GENERATED ALWAYS AS (1) VIRTUAL
 );
 
 CREATE TABLE `contrato_inversion` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `folio_contrato` int NOT NULL AUTO_INCREMENT,
   `sucursal` int DEFAULT '1',
   `rfc_cliente` char(13) DEFAULT NULL,
   `fecha_inicio` datetime DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
-  `folio_contrato` char(14) DEFAULT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`folio_contrato`, `sucursal`),
   KEY `fk_rfc_cliente` (`rfc_cliente`),
   KEY `idx_folio_contrato` (`folio_contrato`),
   CONSTRAINT `fk_rfc_cliente` FOREIGN KEY (`rfc_cliente`) REFERENCES `clientes` (`rfc`) ON DELETE CASCADE
@@ -32,19 +31,20 @@ CREATE TABLE `contrato_inversion` (
 
 
 CREATE TABLE `inversiones` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `folio_inversion` char(8) DEFAULT NULL,
-  `folio_contrato` char(14) DEFAULT NULL,
+  `folio_inversion` int NOT NULL AUTO_INCREMENT,
+  `sucursal` int DEFAULT '1',
+  `folio_contrato` int DEFAULT NULL,
   `clave_tasa` char(5) DEFAULT NULL,
   `tipo_inversion` varchar(30) DEFAULT NULL,
   `monto_invertido` decimal(12,2) DEFAULT NULL,
   `monto_ganado` decimal(14,4) DEFAULT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`folio_inversion`, `sucursal`),
   KEY `fk_clave_tasa` (`clave_tasa`),
-  KEY `fk_folio_contrato` (`folio_contrato`),
+  KEY `fk_folio_contrato_sucursal` (`folio_contrato`,`sucursal`),
   CONSTRAINT `fk_clave_tasa` FOREIGN KEY (`clave_tasa`) REFERENCES `tasa` (`clave_tasa`),
-  CONSTRAINT `fk_folio_contrato` FOREIGN KEY (`folio_contrato`) REFERENCES `contrato_inversion` (`folio_contrato`) ON DELETE CASCADE
+  CONSTRAINT `fk_folio_contrato_sucursal` FOREIGN KEY (`folio_contrato`,`sucursal`) REFERENCES `contrato_inversion` (`folio_contrato`,`sucursal`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 
 
@@ -112,26 +112,18 @@ INSERT INTO contrato_inversion ( rfc_cliente, fecha_inicio, fecha_vencimiento) V
 
 
 -- Inversion
-INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa, monto_invertido, monto_ganado) VALUES
-('1I001', '1cAAAA01', 'TasaB', 100000.00, 55.3375),
-('1I002', '1cAAAA02', 'TasaE', 200000.00, 65465.41),
-('1I003', '1cAAAA03', 'TasaA', 50000.00, 1234.5695),
-('1I004', '1cAAAA03', 'TasaB', 70000.00, 2345.6778),
-('1I005', '1cAAAA04', 'TasaC', 80000.00, 3456.7846),
-('1I006', '1cAAAA04', 'TasaD', 90000.00, 4567.8946),
-('1I007', '1cAAAA05', 'TasaE', 100000.00, 5678.9046),
-('1I008', '1cAAAA06', 'TasaA', 110000.00, 6789.0145),
-('1I009', '1cAAAA07', 'TasaA', 120000.00, 7890.1287),
-('1I010', '1cAAAA08', 'TasaB', 130000.00, 8901.2356),
-('1I011', '1cAAAA09', 'TasaC', 140000.00, 9012.3445),
-('1I012', '1cAAAA10', 'TasaE', 150000.00, 12345.6714);
+INSERT INTO inversiones (folio_contrato, clave_tasa, monto_invertido, monto_ganado) VALUES
+('AAAA010101AAA', 'TasaB', 100000.00, 55.3375),
+('AAAA010102AAA', 'TasaE', 200000.00, 65465.41),
+('AAAA010103AAA', 'TasaA', 50000.00, 1234.5695),
+('AAAA010103AAA', 'TasaB', 70000.00, 2345.6778),
+('AAAA010104AAA', 'TasaC', 80000.00, 3456.7846),
+('AAAA010104AAA', 'TasaD', 90000.00, 4567.8946),
+('AAAA010105AAA', 'TasaE', 100000.00, 5678.9046),
+('AAAA010106AAA', 'TasaA', 110000.00, 6789.0145),
+('AAAA010108AAA', 'TasaA', 120000.00, 7890.1287),
+('AAAA010108AAA', 'TasaB', 130000.00, 8901.2356),
+('AAAA010109AAA', 'TasaC', 140000.00, 9012.3445),
+('AAAA010110AAA', 'TasaE', 150000.00, 12345.6714);
 
 
-
-
--- --------------------------------------------------------------------------------------------------------------------------------------
--- TRIGGER DE FOLIO_CONTRATO
-CREATE TRIGGER generar_folio_contrato
-BEFORE INSERT ON contrato_inversion
-FOR EACH ROW
-SET NEW.folio_contrato = CONCAT(NEW.sucursal, LPAD(NEW.id, 5, '0'), LEFT(NEW.rfc_cliente,6));

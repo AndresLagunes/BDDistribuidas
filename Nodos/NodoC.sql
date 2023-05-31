@@ -18,29 +18,31 @@ tasa_interes DECIMAL(4,2)
 -- );
 
 CREATE TABLE `contrato_inversion` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `sucursal` int DEFAULT 1,
+  `folio_contrato` int NOT NULL AUTO_INCREMENT,
+  `sucursal` int DEFAULT '1',
   `rfc_cliente` char(13) DEFAULT NULL,
   `fecha_inicio` datetime DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
-  `folio_contrato` char(14),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`folio_contrato`, `sucursal`),
+  KEY `idx_folio_contrato` (`folio_contrato`),
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 
 CREATE TABLE `inversiones` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `folio_inversion` char(8) DEFAULT NULL,
-  `folio_contrato` char(14) DEFAULT NULL,
+  `folio_inversion` int NOT NULL AUTO_INCREMENT,
+  `sucursal` int DEFAULT '1',
+  `folio_contrato` int DEFAULT NULL,
   `clave_tasa` char(5) DEFAULT NULL,
   `tipo_inversion` varchar(30) DEFAULT NULL,
   `monto_invertido` decimal(12,2) DEFAULT NULL,
   `monto_ganado` decimal(14,4) DEFAULT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`folio_inversion`, `sucursal`),
   KEY `fk_clave_tasa` (`clave_tasa`),
-  CONSTRAINT `fk_clave_tasa` FOREIGN KEY (`clave_tasa`) REFERENCES `tasa` (`clave_tasa`)
+  KEY `fk_folio_contrato_sucursal` (`folio_contrato`,`sucursal`),
+  CONSTRAINT `fk_clave_tasa` FOREIGN KEY (`clave_tasa`) REFERENCES `tasa` (`clave_tasa`),
+  CONSTRAINT `fk_folio_contrato_sucursal` FOREIGN KEY (`folio_contrato`,`sucursal`) REFERENCES `contrato_inversion` (`folio_contrato`,`sucursal`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 
 -- --------------------------------------------------------------------------------------------------------------------------------------
