@@ -24,7 +24,7 @@ CREATE TABLE `contrato_inversion` (
   `fecha_inicio` datetime DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
   PRIMARY KEY (`folio_contrato`, `sucursal`),
-  KEY `idx_folio_contrato` (`folio_contrato`),
+  KEY `idx_folio_contrato` (`folio_contrato`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -73,20 +73,20 @@ INSERT INTO contrato_inversion (rfc_cliente, fecha_inicio, fecha_vencimiento) VA
 ('BBBB010121BBB', '2022-12-31-23:59:59', '2024-05-23');
 
 
--- Inversion
-INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa,tipo_inversion, monto_invertido, monto_ganado) VALUES
-('2I001', '2CBBBB01', 'TasaB', "Coca-Cola	", 100000.00, 55.3375),
-('2I002', '2CBBBB02', 'TasaE', "Coca-Cola	", 200000.00, 65465.41),
-('2I003', '2CBBBB03', 'TasaA', "Coca-Cola	", 50000.00, 1234.5695),
-('2I004', '2CBBBB04', 'TasaB', "Coca-Cola	", 70000.00, 2345.6778),
-('2I005', '2CBBBB05', 'TasaC', "Coca-Cola	", 80000.00, 3456.7846),
-('2I006', '2CBBBB06', 'TasaD', "Coca-Cola	", 90000.00, 4567.8946),
-('2I007', '2CBBBB07', 'TasaE', "Coca-Cola	", 100000.00, 5678.9046),
-('2I008', '2CBBBB08', 'TasaA', "Coca-Cola	", 110000.00, 6789.0145),
-('2I009', '2CBBBB09', 'TasaA', "Coca-Cola	", 120000.00, 7890.1287),
-('2I010', '2CBBBB10', 'TasaB', "Coca-Cola	", 130000.00, 8901.2356),
-('2I011', '2CBBBB10', 'TasaB', "Coca-Cola	", 1000.00, 74.2356),
-('2I012', '2CBBBB10', 'TasaB', "Coca-Cola	", 1314.00, 89.2356);
+-- -- Inversion
+-- INSERT INTO inversiones (folio_inversion, folio_contrato, clave_tasa,tipo_inversion, monto_invertido, monto_ganado) VALUES
+-- ('2I001', '2CBBBB01', 'TasaB', "Coca-Cola	", 100000.00, 55.3375),
+-- ('2I002', '2CBBBB02', 'TasaE', "Coca-Cola	", 200000.00, 65465.41),
+-- ('2I003', '2CBBBB03', 'TasaA', "Coca-Cola	", 50000.00, 1234.5695),
+-- ('2I004', '2CBBBB04', 'TasaB', "Coca-Cola	", 70000.00, 2345.6778),
+-- ('2I005', '2CBBBB05', 'TasaC', "Coca-Cola	", 80000.00, 3456.7846),
+-- ('2I006', '2CBBBB06', 'TasaD', "Coca-Cola	", 90000.00, 4567.8946),
+-- ('2I007', '2CBBBB07', 'TasaE', "Coca-Cola	", 100000.00, 5678.9046),
+-- ('2I008', '2CBBBB08', 'TasaA', "Coca-Cola	", 110000.00, 6789.0145),
+-- ('2I009', '2CBBBB09', 'TasaA', "Coca-Cola	", 120000.00, 7890.1287),
+-- ('2I010', '2CBBBB10', 'TasaB', "Coca-Cola	", 130000.00, 8901.2356),
+-- ('2I011', '2CBBBB10', 'TasaB', "Coca-Cola	", 1000.00, 74.2356),
+-- ('2I012', '2CBBBB10', 'TasaB', "Coca-Cola	", 1314.00, 89.2356);
 
 -- TRIGGER DE FOLIO_CONTRATO
 DELIMITER //
