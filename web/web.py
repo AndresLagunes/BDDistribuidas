@@ -53,18 +53,18 @@ def conectar_nodo(esquema, comando, solo_esquema_a=False, nodo=''):
                 print('1')
                 if not conexion.conectar():
                     return resultado, 'No se pudo registrar el cliente en la Sucursal 1'
-            if esquema == ESQUEMA_B:
-                conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
+            elif esquema == ESQUEMA_B:
+                conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_B, ESQUEMA_A)
                 print('2')
                 if not conexion.conectar():
                     return resultado, 'No se pudo registrar el cliente en la Sucursal 2'
-            if esquema == ESQUEMA_C:
-                conexion = Conexion(NODO_C, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
+            elif esquema == ESQUEMA_C:
+                conexion = Conexion(NODO_C, USER, PASSWORD, PUERTO_C, ESQUEMA_A)
                 print('3')
                 if not conexion.conectar():
                     return resultado, 'No se pudo registrar el cliente en la Sucursal 3'  
             
-        if esquema == ESQUEMA_A:
+        elif esquema == ESQUEMA_A:
             conexion = Conexion(NODO_A, USER, PASSWORD, PUERTO_A, ESQUEMA_A)
             if not conexion.conectar():
                 conexion = Conexion(NODO_B, USER, PASSWORD, PUERTO_B, ESQUEMA_A)
@@ -127,14 +127,14 @@ def conectar_nodo(esquema, comando, solo_esquema_a=False, nodo=''):
 USER = 'master'
 PASSWORD = 'master'
 
-NODO_A = '172.29.102.117'
-NODO_B = '172.29.197.96'
-NODO_C = '172.29.38.254'
+NODO_A = 'JESUSLAGUNES'
+NODO_B = 'ANGELFP'
+NODO_C = 'JUANJORUIZ'
 NODOS = [NODO_A, NODO_B, NODO_C]
 
 PUERTO_A = 3306
 PUERTO_B = 3306
-PUERTO_C = 3306
+PUERTO_C = 3308
 
 ESQUEMA_A = 'Inversiones_A'
 ESQUEMA_B = 'Inversiones_B'
@@ -142,7 +142,7 @@ ESQUEMA_C = 'Inversiones_C'
 
 #Esquema al que se va a conectar
 ESQUEMA_DEFAULT = ESQUEMA_A
-SUCURSAL = 2
+SUCURSAL = 1
 
 
 # Modificar el arreglo de ESQUEMAS para que se conecte a todos los nodos/esquemas
@@ -848,4 +848,4 @@ def inversionesClientes():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.29.197.96', port=5000)
+    app.run(debug=True, host='JESUSLAGUNES', port=5000)
