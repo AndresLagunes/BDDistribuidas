@@ -124,6 +124,18 @@ def conectar_nodo(esquema, comando, solo_esquema_a=False, nodo=''):
     return resultado, ''
 
 
+def verificar_nodos():
+    resultados = {}
+
+    for nodo, puerto in zip(NODOS, PUERTOS):
+        conexion = Conexion(nodo, USER, PASSWORD, puerto, ESQUEMA_A)  # Esquema A se utiliza si todos los nodos replican el mismo esquema.
+        resultado_conexion = conexion.conectar()
+        if resultado_conexion:
+            conexion.desconectar()
+        resultados[nodo] = resultado_conexion
+
+    return resultados
+
 USER = 'master'
 PASSWORD = 'master'
 
@@ -135,6 +147,7 @@ NODOS = [NODO_A, NODO_B, NODO_C]
 PUERTO_A = 3306
 PUERTO_B = 3306
 PUERTO_C = 3308
+PUERTOS = [PUERTO_A, PUERTO_B, PUERTO_C]
 
 ESQUEMA_A = 'Inversiones_A'
 ESQUEMA_B = 'Inversiones_B'
@@ -215,22 +228,26 @@ def crear_cliente():
         comando = f"INSERT INTO clientes (rfc, nombre, apellido_paterno, apellido_materno, direccion, telefono, email, sucursal) VALUES ('{rfc}', '{nombre}', '{apellido_paterno}', '{apellido_materno}', '{direccion}', '{telefono}', '{email}', '{SUCURSAL}')"
 
     # Resto del código para procesar los datos recibidos
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
 
-    resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
-    if not error == '':
-        return render_template('alta_cliente.html', mensaje=error)
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
     else:
-        resultado, error2 = conectar_nodo(ESQUEMA_B, comando, True)
-        resultado, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+        msg = 'No se registró el cliente porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
+        return render_template('alta_cliente.html', mensaje = msg)
         
-    if error2 != '' or error3 != '':
-        msg = ''
-        if error2 != '':
-            msg += 'Error al registrar en la Sucursa 2 \n'
-        if error3 != '':
-            msg += 'Error al registrar en la Sucursa 3 \n'
-        return render_template('alta_cliente.html', mensaje=('Cliente registrado con éxito en la Sucursal 1 \n '+ msg))
-
+        
     return render_template('alta_cliente.html', mensaje='Cliente registrado con éxito')
 
 @app.route('/modificar_cliente', methods=['GET', 'POST'])
@@ -280,29 +297,28 @@ def actualizar_cliente():
                 f"apellido_materno = '{cliente['apellido_materno']}', direccion = '{cliente['direccion']}', " \
                 f"telefono = '{cliente['telefono']}', email = '{cliente['email']}' WHERE rfc = '{cliente['rfc']}'"
         print(comando)
-    resultado, error = conectar_nodo(ESQUEMA_A, comando)
-    print(resultado)
-    if not error == '':
-        return render_template('modificar_cliente.html', resultado=resultado, mensaje=error)
-    else:
-        resultado, error2 = conectar_nodo(ESQUEMA_B, comando, True)
-        resultado, error3 = conectar_nodo(ESQUEMA_C, comando, True)
         
-    if error2 != '' or error3 != '':
-        msg = ''
-        if error2 != '':
-            msg += 'Error al actualizar en la Sucursal 2 \n'
-        else:
-            msg += 'Cliente Actualizado con éxito en la Sucursal 2 \n'
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
 
-        if error3 != '':
-            msg += 'Error al actualizar en la Sucursa 3 \n'
-        else:
-            msg += 'Cliente Actualizado con éxito en la Sucursal 3 \n'
-            
-        return render_template('modificar_cliente.html', mensaje=('Cliente Actualizado con éxito en la Sucursal 1 \n '+ msg))
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se actualizaron los datos del cliente porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
+        return render_template('modificar_cliente.html', mensaje=msg)
+    
 
-    return render_template('modificar_cliente.html',resultado = resultado, mensaje = 'Cliente actualizado con éxito')
+    return render_template('modificar_cliente.html', mensaje = 'Cliente actualizado con éxito')
 
 @app.route('/baja_clientes', methods=['GET', 'POST'])
 def baja_clientes():
@@ -341,29 +357,28 @@ def eliminar_cliente():
         comando = f"DELETE FROM clientes WHERE rfc = '{cliente['rfc']}'"
 
         print(comando)
-    resultado, error = conectar_nodo(ESQUEMA_A, comando, True)
-    print(resultado)
-    if not error == '':
-        return render_template('baja_clientes.html', resultado=resultado, mensaje=error)
-    else:
-        resultado, error2 = conectar_nodo(ESQUEMA_B, comando, True)
-        resultado, error3 = conectar_nodo(ESQUEMA_C, comando, True)
         
-    if error2 != '' or error3 != '':
-        msg = ''
-        if error2 != '':
-            msg += 'Error al eliminar en la Sucursal 2 \n'
-        else:
-            msg += 'Cliente eliminado con éxito en la Sucursal 2 \n'
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
 
-        if error3 != '':
-            msg += 'Error al eliminar en la Sucursa 3 \n'
-        else:
-            msg += 'Cliente eliminado con éxito en la Sucursal 3 \n'
-            
-        return render_template('baja_clientes.html', mensaje=('Cliente eliminado con éxito en la Sucursal 1 \n '+ msg))
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se pudo eliminar al cliente porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
+        return render_template('baja_clientes.html', mensaje=msg)
+        
 
-    return render_template('baja_clientes.html',resultado = resultado, mensaje = 'Cliente eliminado con éxito')
+    return render_template('baja_clientes.html', mensaje = 'Cliente eliminado con éxito')
 # FIN CLIENTES
 
 
@@ -411,34 +426,32 @@ def crear_contrato():
     cliente = request.form['cliente']
     fecha_inicio = request.form['fecha_inicio']
     fecha_vencimiento = request.form['fecha_vencimiento']
+    sucursal = request.form['sucursal']
 
     # Resto del código para procesar los datos recibidos
     
     if request.method == 'POST':
-        comando = f"INSERT INTO contrato_inversion (rfc_cliente, fecha_inicio, fecha_vencimiento) VALUES ('{cliente}', '{fecha_inicio}', '{fecha_vencimiento}')"
+        comando = f"INSERT INTO contrato_inversion (rfc_cliente, fecha_inicio, fecha_vencimiento, sucursal) VALUES ('{cliente}', '{fecha_inicio}', '{fecha_vencimiento}', '{sucursal}')"
         print(comando)
-
-    resultados = []
-    errores = []
-    for nodo in NODOS:
-        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
-        resultados.append(resultado)
-        if error != '':
-            errores.append(error)
-
-    print(errores)
         
-    if len(errores) == 3:
-        msg = 'No se pudo registrar el Contrato en ninguna base de datos \n'
-        for er in errores:
-            msg += er + ' \n'
-        return render_template('alta_contrato.html', mensaje=msg)
-    elif len(errores) > 0:
-        msg = 'No se pudo registrar el Contrato en todos los nodos: \n'
-        for er in errores:
-            msg += er+' \n'
-        return render_template('alta_contrato.html', mensaje=msg)
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
 
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se pudo crear el contrato porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
+        return render_template('alta_contrato.html', mensaje=msg)
 
 
     return render_template('alta_contrato.html', mensaje='Contrato registrado con éxito')
@@ -490,29 +503,26 @@ def actualizar_contrato():
         comando = f"UPDATE contrato_inversion SET fecha_vencimiento = '{contrato['fecha_vencimiento']}' WHERE folio_contrato = '{contrato['id']}'"
         print(comando)
         
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
+
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
     
-    resultados = []
-    errores = []
-    for nodo in NODOS:
-        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
-        resultados.append(resultado)
-        if error != '':
-            errores.append(error)
-
-    print(errores)
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se pudo modificar el contrato porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
+        return render_template('modificar_contrato.html', mensaje=msg)
         
-    if len(errores) == 3:
-        msg = 'No se pudo actualizar el Contrato en ninguna base de datos \n'
-        for er in errores:
-            msg += er + ' \n'
-        return render_template('modificar_contrato.html', mensaje=msg)
-    elif len(errores) > 0:
-        msg = 'No se pudo actualizar el Contrato en todos los nodos: \n'
-        for er in errores:
-            msg += er+' \n'
-        return render_template('modificar_contrato.html', mensaje=msg)
-
-    return render_template('modificar_contrato.html',resultado = resultado, mensaje = 'Contrato actualizado con éxito')
+    return render_template('modificar_contrato.html', mensaje = 'Contrato actualizado con éxito')
 
 
 @app.route('/baja_contratos', methods=['GET', 'POST'])
@@ -551,29 +561,27 @@ def eliminar_contrato():
         contrato = request.form.to_dict()
         comando = f"DELETE FROM contrato_inversion WHERE folio_contrato = '{contrato['id']}'"
         print(comando)
-
-    resultados = []
-    errores = []
-    for nodo in NODOS:
-        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
-        resultados.append(resultado)
-        if error != '':
-            errores.append(error)
-
-    print(errores)
         
-    if len(errores) == 3:
-        msg = 'No se pudo eliminar el Contrato en ninguna base de datos \n'
-        for er in errores:
-            msg += er + ' \n'
-        return render_template('baja_contratos.html', mensaje=msg)
-    elif len(errores) > 0:
-        msg = 'No se pudo eliminar el Contrato en todos los nodos: \n'
-        for er in errores:
-            msg += er+' \n'
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
+
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se pudo eliminar el contrato porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
         return render_template('baja_contratos.html', mensaje=msg)
 
-    return render_template('baja_contratos.html',resultado = resultado, mensaje = 'Contrato eliminado con éxito')
+    return render_template('baja_contratos.html', mensaje = 'Contrato eliminado con éxito')
 # FIN CONTRATOS
 
 # INVERSIONES
@@ -624,32 +632,33 @@ def crear_inversion():
     tasa = request.form['tasa']
     tipo_de_inversion = request.form['tipo_de_inversion']
     monto_de_inversion = request.form['monto_de_inversion']
+    sucursal = request.form['sucursal']
+
 
     if request.method == 'POST':
-        comando = f"INSERT INTO inversiones (folio_contrato, clave_tasa, tipo_inversion, monto_invertido) VALUES ('{contrato}', '{tasa}', '{tipo_de_inversion}', '{monto_de_inversion}')"
+        comando = f"INSERT INTO inversiones (folio_contrato, clave_tasa, tipo_inversion, monto_invertido, sucursal) VALUES ('{contrato}', '{tasa}', '{tipo_de_inversion}', '{monto_de_inversion}', '{sucursal}')"
         print(comando)
 
-    
-    resultados = []
-    errores = []
-    for nodo in NODOS:
-        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
-        resultados.append(resultado)
-        if error != '':
-            errores.append(error)
 
-    print(errores)
-        
-    if len(errores) == 3:
-        msg = 'No se pudo crear la Inversión en ninguna base de datos \n'
-        for er in errores:
-            msg += er + ' \n'
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
+
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se pudo crear la inversión porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
         return render_template('alta_inversion.html', mensaje=msg)
-    elif len(errores) > 0:
-        msg = 'No se pudo crear la Inversión en todos los nodos: \n'
-        for er in errores:
-            msg += er+' \n'
-        return render_template('alta_inversion.html', mensaje=msg)
+    
 
     return render_template('alta_inversion.html', mensaje='Inversión registrada con éxito')
 
@@ -705,29 +714,29 @@ def actualizar_inversion():
         inversion = request.form.to_dict()
         comando = f"UPDATE inversiones SET clave_tasa = '{inversion['clave_tasa']}' WHERE folio_inversion = '{inversion['id']}'"
         print(comando)
-
-    resultados = []
-    errores = []
-    for nodo in NODOS:
-        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
-        resultados.append(resultado)
-        if error != '':
-            errores.append(error)
-
-    print(errores)
         
-    if len(errores) == 3:
-        msg = 'No se pudo actualizar la Inversión en ninguna base de datos \n'
-        for er in errores:
-            msg += er + ' \n'
-        return render_template('modificar_inversion.html', mensaje=msg)
-    elif len(errores) > 0:
-        msg = 'No se pudo actualizar la Inversión en todos los nodos: \n'
-        for er in errores:
-            msg += er+' \n'
-        return render_template('modificar_inversion.html', mensaje=msg)        
+    
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
 
-    return render_template('modificar_inversion.html',resultado = resultado, mensaje = 'Inversión actualizada con éxito')
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se pudo modificar la inversión porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
+        return render_template('modificar_inversion.html', mensaje=msg)
+     
+
+    return render_template('modificar_inversion.html', mensaje = 'Inversión actualizada con éxito')
 
 
 
@@ -768,28 +777,30 @@ def eliminar_inversion():
         comando = f"DELETE FROM inversiones WHERE folio_inversion = '{contrato['id']}'"
 
         print(comando)
-    resultados = []
-    errores = []
-    for nodo in NODOS:
-        resultado, error = conectar_nodo(ESQUEMA_DEFAULT, comando, False, nodo)
-        resultados.append(resultado)
-        if error != '':
-            errores.append(error)
-
-    print(errores)
         
-    if len(errores) == 3:
-        msg = 'No se pudo eliminar la Inversión en ninguna base de datos \n'
-        for er in errores:
-            msg += er + ' \n'
-        return render_template('baja_inversiones.html', mensaje=msg)
-    elif len(errores) > 0:
-        msg = 'No se pudo eliminar la Inversión en todos los nodos: \n'
-        for er in errores:
-            msg += er+' \n'
-        return render_template('baja_inversiones.html', mensaje=msg)        
 
-    return render_template('baja_inversiones.html',resultado = resultado, mensaje = 'Inversión eliminado con éxito')
+    
+    nodos = verificar_nodos()
+    flag = True
+    nodosCaidos = []
+
+    for nodo, conexion_exitosa in nodos.items():
+        if not conexion_exitosa:
+            flag = False
+            nodosCaidos.append(nodo)
+    
+    if flag:
+        resultado1, error = conectar_nodo(ESQUEMA_A, comando, True)
+        resultado2, error2 = conectar_nodo(ESQUEMA_B, comando, True)
+        resultado3, error3 = conectar_nodo(ESQUEMA_C, comando, True)
+    else:
+        msg = 'No se pudo eliminar la inversión porque no se pudo conectar con todos los nodos: \n'
+        for caido in nodosCaidos:
+            msg += 'Error al conectar con el nodo {} \n'.format(caido)
+        return render_template('baja_inversiones.html', mensaje=msg)
+    
+
+    return render_template('baja_inversiones.html', mensaje = 'Inversión eliminado con éxito')
 
 # FIN DE INVERSIONES
 

@@ -19,7 +19,7 @@ tasa_interes DECIMAL(4,2)
 
 CREATE TABLE `contrato_inversion` (
   `folio_contrato` int NOT NULL AUTO_INCREMENT,
-  `sucursal` int DEFAULT '3',
+  `sucursal` int,
   `rfc_cliente` char(13) DEFAULT NULL,
   `fecha_inicio` datetime DEFAULT NULL,
   `fecha_vencimiento` date DEFAULT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `contrato_inversion` (
 
 CREATE TABLE `inversiones` (
   `folio_inversion` int NOT NULL AUTO_INCREMENT,
-  `sucursal` int DEFAULT '3',
+  `sucursal` int,
   `folio_contrato` int DEFAULT NULL,
   `clave_tasa` char(5) DEFAULT NULL,
   `tipo_inversion` varchar(30) DEFAULT NULL,
